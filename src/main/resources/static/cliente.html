@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pedido - Cliente</title>
+  <style>
+    body{font-family: Arial, Helvetica, sans-serif; max-width:900px;margin:24px auto;color:#222}
+    h1{font-size:20px}
+    label{display:block;margin-top:8px}
+    input[type=text], input[type=number], select, textarea{width:100%;padding:8px;margin-top:4px}
+    button{padding:8px 12px;margin-top:8px}
+    .item{border:1px solid #ddd;padding:8px;margin:8px 0;border-radius:6px}
+    .flex{display:flex;gap:8px}
+    .flex > *{flex:1}
+    pre{background:#f6f6f6;padding:12px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <h1>Fazer Pedido (Cliente)</h1>
+
+  <div>
+    <h2>Produtos Disponíveis</h2>
+    <div id="listaProdutos">
+      <p>Carregando produtos...</p>
+    </div>
+
+    <h2>Carrinho</h2>
+    <div id="carrinho"></div>
+
+    <h2>Carrinho</h2>
+    <div id="carrinho"></div>
+
+    <label>Observações do pedido (geral)
+      <textarea id="observacoes" rows="2" placeholder="Ex: entregar sem sacola"></textarea>
+    </label>
+
+    <label>Forma de pagamento
+      <select id="formaPagamento">
+        <option>Dinheiro</option>
+        <option>Cartão</option>
+        <option>Pix</option>
+      </select>
+    </label>
+
+    <button id="enviar">Pagar e Gerar Recibo</button>
+
+    <h2>Recibo (Resposta)</h2>
+    <div id="resultado">
+      <em>Aguardando envio...</em>
+    </div>
+  </div>
+
+  <script>
+    const carrinho = [];
+    const carrinhoEl = document.getElementById('carrinho');
+    const listaProdutosEl = document.getElementById('listaProdutos');
+    const resultadoEl = document.getElementById('resultado');
+    let produtosDisponiveis = [];
+
+    // Formatar preço para exibição
+    function formatarPreco(cents) {
+      return (cents / 100).toFixed(2);
+    }
+
+    // Carregar produtos do banco
+    async function carregarProdutos() {
+      try {
+        const res = await fetch('/products');
+        if (!res.ok) throw new Error('Erro ao carregar produtos');
+
+        produtosDisponiveis = await res.json();
+        renderizarProdutos();
+      } catch (err) {
+        listaProdutosEl.innerHTML = `<p class="error">Erro ao carregar produtos: ${err.message}</p>`;
+      }
+    }
+
+    // Renderizar lista de produtos disponíveis
+    function renderizarProdutos() {
+      if (produtosDisponiveis.length === 0) {
+        listaProdutosEl.innerHTML = '<p>Nenhum produto disponível no momento.</p>';
+        return;
+      }
+
+      listaProdutosEl.innerHTML = produtosDisponiveis.map(produto => `
+        <div class="item">
+          <strong>${produto.name}</strong>
+          <div>Preço: R$ ${formatarPreco(produto.priceInCents)}</div>
+          <div class="flex">
+            <label>Quantidade
+              <input type="number" min="1" value="1" class="quantidade-produto" data-id="${produto.id}" />
+            </label>
+            <label>Observação (opcional)
+              <input type="text" class="obs-produto" data-id="${produto.id}" placeholder="Ex: sem sal, tostar" />
+            </label>
+          </div>
+          <button onclick="adicionarAoCarrinho(${produto.id})">Adicionar ao Carrinho</button>
+        </div>
+      `).join('');
+    }
+
+    // Adicionar produto ao carrinho
+    window.adicionarAoCarrinho = function(produtoId) {
+      const produto = produtosDisponiveis.find(p => p.id === produtoId);
+      if (!produto) return;
+
+      const quantidadeInput = document.querySelector(`.quantidade-produto[data-id="${produtoId}"]`);
+      const obsInput = document.querySelector(`.obs-produto[data-id="${produtoId}"]`);
+
+      const quantidade = parseInt(quantidadeInput.value) || 1;
+      const observacao = obsInput.value.trim();
+      const preco = produto.priceInCents / 100; // converter centavos para reais
+
+      // Verificar se o produto já está no carrinho
+      const itemExistente = carrinho.find(item =>
+        item.produtoId === produtoId && item.observacao === observacao
+      );
+
+      if (itemExistente) {
+        itemExistente.quantidade += quantidade;
+      } else {
+        carrinho.push({
+          produtoId: produto.id,
+          nome: produto.name,
+          quantidade: quantidade,
+          preco: preco,
+          observacao: observacao
+        });
+      }
+
+      renderCarrinho();
+      // Limpar campos
+      quantidadeInput.value = '1';
+      obsInput.value = '';
+    };
+
+    // Renderizar carrinho
+    function renderCarrinho(){
+      if(carrinho.length===0){
+        carrinhoEl.innerHTML = '<p>Carrinho vazio</p>';
+        return;
+      }
+      carrinhoEl.innerHTML = '';
+      carrinho.forEach((it, idx)=>{
+        const div = document.createElement('div');
+        div.className='item';
+        div.innerHTML = `
+          <strong>${it.nome}</strong>
+          <div>Qtd: ${it.quantidade} • Preço: R$ ${it.preco.toFixed(2)}</div>
+          <div>Obs: ${it.observacao || '-'}</div>
+          <div>Subtotal: R$ ${(it.quantidade * it.preco).toFixed(2)}</div>
+          <button data-idx="${idx}">Remover</button>
+        `;
+        div.querySelector('button').addEventListener('click', (e)=>{
+          const i = parseInt(e.target.dataset.idx);
+          carrinho.splice(i,1);
+          renderCarrinho();
+        });
+        carrinhoEl.appendChild(div);
+      });
+    }
+
+    document.getElementById('enviar').addEventListener('click', async ()=>{
+      if(carrinho.length===0){ alert('Carrinho vazio'); return; }
+      const observacoes = document.getElementById('observacoes').value.trim();
+      const formaPagamento = document.getElementById('formaPagamento').value;
+
+      // Preparar itens para o backend
+      const itensPayload = carrinho.map(it=>({
+        nome: it.observacao ? `${it.nome} (${it.observacao})` : it.nome,
+        quantidade: it.quantidade,
+        preco: it.preco
+      }));
+
+      const payload = {
+        itens: itensPayload,
+        observacoes: observacoes,
+        formaPagamento: formaPagamento
+      };
+
+      resultadoEl.innerHTML = '<em>Processando pedido...</em>';
+
+      try{
+        const res = await fetch('/recibo/pagar', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+
+        if(!res.ok){
+          const text = await res.text();
+          resultadoEl.innerHTML = `<pre>Erro: ${res.status}\n${text}</pre>`;
+          return;
+        }
+
+        const data = await res.json();
+        // Mostrar recibo minimalista pronto para impressão
+        renderReciboParaImprimir(data);
+        // limpar carrinho
+        carrinho.length = 0;
+        renderCarrinho();
+        document.getElementById('observacoes').value='';
+      }catch(err){
+        resultadoEl.innerHTML = `<pre>Falha ao enviar: ${err.message}</pre>`;
+      }
+    });
+
+    function renderReciboParaImprimir(recibo){
+      // Exibe número de chamada, data (se existir), itens e total
+      const lines = [];
+      lines.push('====== RECIBO (Cliente) ======');
+      if(recibo.numeroChamada) lines.push('Número de chamada: ' + recibo.numeroChamada);
+      if(recibo.dataCriacao) lines.push('Data: ' + recibo.dataCriacao);
+      lines.push('');
+      lines.push('Itens:');
+      if(recibo.itens && recibo.itens.length){
+        recibo.itens.forEach(it=>{
+          const nome = it.nome || it.nomeCompra || '';
+          const qtd = it.quantidade || it.qtd || 1;
+          const preco = it.preco != null ? Number(it.preco).toFixed(2) : '0.00';
+          const subtotal = ( (it.quantidade || 1) * (it.preco || 0) ).toFixed(2);
+          lines.push(`${nome}  x${qtd}  R$ ${preco}  Sub: R$ ${subtotal}`);
+        });
+      }
+      lines.push('');
+      lines.push('Total: R$ ' + (recibo.total != null ? Number(recibo.total).toFixed(2) : '0.00'));
+      if(recibo.formaPagamento) lines.push('Pagamento: ' + recibo.formaPagamento);
+      if(recibo.observacoes) lines.push('Obs: ' + recibo.observacoes);
+      lines.push('==============================');
+
+      resultadoEl.innerHTML = '<pre>' + lines.join('\n') + '</pre>';
+    }
+
+    // Carregar produtos e renderizar carrinho inicial
+    carregarProdutos();
+    renderCarrinho();
+  </script>
+</body>
+</html>

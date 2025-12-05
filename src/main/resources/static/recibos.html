@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Recibos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        input, select, button { margin: 5px; padding: 8px; }
+        .product { margin: 10px 0; padding: 10px; border: 1px solid #eee; cursor: pointer; }
+        .product:hover { background: #f9f9f9; }
+        .cart-item { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+        .recibo { margin: 20px 0; padding: 20px; border: 2px solid #007bff; background: #f8f9fa; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .delete { background: #dc3545; }
+        .delete:hover { background: #c82333; }
+        .tabs { display: flex; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #f0f0f0; border: none; cursor: pointer; }
+        .tab.active { background: #007bff; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema de Recibos</h1>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('produtos')">Gerenciar Produtos</button>
+            <button class="tab" onclick="showTab('recibos')">Gerar Recibos</button>
+            <button class="tab" onclick="showTab('historico')">Histórico de Recibos</button>
+        </div>
+
+        <!-- Aba de Produtos -->
+        <div id="produtos" class="tab-content active">
+            <div class="section">
+                <h2>Cadastrar Produto</h2>
+                <input type="text" id="nomeProduto" placeholder="Nome do produto" required>
+                <input type="number" id="precoProduto" placeholder="Preço em centavos" required>
+                <button onclick="createProduct()">Cadastrar</button>
+                <div id="productResult"></div>
+            </div>
+
+            <div class="section">
+                <h2>Produtos Disponíveis</h2>
+                <button onclick="loadProducts()">Atualizar Lista</button>
+                <div id="productsList"></div>
+            </div>
+        </div>
+
+        <!-- Aba de Recibos -->
+        <div id="recibos" class="tab-content">
+            <div class="section">
+                <h2>Produtos para Pedido</h2>
+                <div id="availableProducts"></div>
+            </div>
+
+            <div class="section">
+                <h2>Carrinho</h2>
+                <div id="cart"></div>
+                <label>Observações: <input type="text" id="observacoes" placeholder="Ex: entregar sem sacola"></label>
+                <label>Forma de Pagamento:
+                    <select id="formaPagamento">
+                        <option>Dinheiro</option>
+                        <option>Cartão</option>
+                        <option>Pix</option>
+                    </select>
+                </label>
+                <button onclick="generateRecibo()">Gerar Recibo</button>
+                <div id="reciboResult"></div>
+            </div>
+        </div>
+
+        <!-- Aba de Histórico -->
+        <div id="historico" class="tab-content">
+            <div class="section">
+                <h2>Recibos Emitidos</h2>
+                <button onclick="loadRecibos()">Carregar Recibos</button>
+                <div id="recibosList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PRODUCTS_API = '/products';
+        const RECIBOS_API = '/recibos';
+        let allProducts = [];
+        let cart = [];
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Products functions
+        async function createProduct() {
+            const name = document.getElementById('nomeProduto').value;
+            const price = document.getElementById('precoProduto').value;
+
+            if (!name || !price) {
+                alert('Preencha todos os campos');
+                return;
+            }
+
+            try {
+                const response = await fetch(PRODUCTS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, priceInCents: parseInt(price) })
+                });
+
+                const result = await response.json();
+                document.getElementById('productResult').innerHTML = `<p>Produto criado: ${JSON.stringify(result)}</p>`;
+                loadProducts();
+                document.getElementById('nomeProduto').value = '';
+                document.getElementById('precoProduto').value = '';
+            } catch (error) {
+                document.getElementById('productResult').innerHTML = `<p>Erro: ${error.message}</p>`;
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch(PRODUCTS_API);
+                allProducts = await response.json();
+                displayProducts();
+                displayAvailableProducts();
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+            }
+        }
+
+        function displayProducts() {
+            const container = document.getElementById('productsList');
+            container.innerHTML = allProducts.map(product => `
+                <div class="product">
+                    <strong>ID: ${product.id}</strong><br>
+                    Nome: ${product.name}<br>
+                    Preço: R$ ${(product.priceInCents / 100).toFixed(2)}<br>
+                    <button onclick="deleteProduct(${product.id})" class="delete">Deletar</button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Deletar este produto?')) return;
+
+            try {
+                await fetch(`${PRODUCTS_API}/${id}`, { method: 'DELETE' });
+                loadProducts();
+            } catch (error) {
+                alert('Erro ao deletar: ' + error.message);
+            }
+        }
+
+        // Cart functions
+        function displayAvailableProducts() {
+            const container = document.getElementById('availableProducts');
+            container.innerHTML = allProducts.map(product => `
+                <div class="product" onclick="addToCart(${product.id})">
+                    <strong>${product.name}</strong><br>
+                    Preço: R$ ${(product.priceInCents / 100).toFixed(2)}<br>
+                    <small>Clique para adicionar ao carrinho</small>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            const existingItem = cart.find(item => item.productId === productId);
+            if (existingItem) {
+                existingItem.quantidade++;
+            } else {
+                cart.push({
+                    productId: product.id,
+                    nome: product.name,
+                    quantidade: 1,
+                    preco: product.priceInCents
+                });
+            }
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const container = document.getElementById('cart');
+            if (cart.length === 0) {
+                container.innerHTML = '<p>Carrinho vazio</p>';
+                return;
+            }
+
+            container.innerHTML = cart.map((item, index) => `
+                <div class="cart-item">
+                    <strong>${item.nome}</strong><br>
+                    Quantidade: <input type="number" value="${item.quantidade}" min="1" onchange="updateQuantity(${index}, this.value)">
+                    Preço: R$ ${(item.preco / 100).toFixed(2)}<br>
+                    Subtotal: R$ ${((item.quantidade * item.preco) / 100).toFixed(2)}<br>
+                    <button onclick="removeFromCart(${index})" class="delete">Remover</button>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + (item.quantidade * item.preco), 0);
+            container.innerHTML += `<div><strong>Total: R$ ${(total / 100).toFixed(2)}</strong></div>`;
+        }
+
+        function updateQuantity(index, newQuantity) {
+            cart[index].quantidade = parseInt(newQuantity) || 1;
+            updateCartDisplay();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartDisplay();
+        }
+
+        async function generateRecibo() {
+            if (cart.length === 0) {
+                alert('Carrinho vazio!');
+                return;
+            }
+
+            const itens = cart.map(item => ({
+                nome: item.nome,
+                quantidade: item.quantidade,
+                preco: item.preco
+            }));
+
+            const payload = {
+                itens: itens,
+                observacoes: document.getElementById('observacoes').value,
+                formaPagamento: document.getElementById('formaPagamento').value
+            };
+
+            try {
+                const response = await fetch(`${RECIBOS_API}/pagar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const recibo = await response.json();
+                displayRecibo(recibo);
+                cart = [];
+                updateCartDisplay();
+                loadRecibos();
+            } catch (error) {
+                document.getElementById('reciboResult').innerHTML = `<p>Erro: ${error.message}</p>`;
+            }
+        }
+
+        function displayRecibo(recibo) {
+            const container = document.getElementById('reciboResult');
+            const total = recibo.total / 100;
+            const itensHtml = recibo.itens.map(item =>
+                `<div>${item.nome} x${item.quantidade} = R$ ${((item.quantidade * item.preco) / 100).toFixed(2)}</div>`
+            ).join('');
+
+            container.innerHTML = `
+                <div class="recibo">
+                    <h3>RECIBO #${recibo.numeroChamada}</h3>
+                    <p><strong>Data:</strong> ${new Date(recibo.dataCriacao).toLocaleString()}</p>
+                    <div><strong>Itens:</strong>${itensHtml}</div>
+                    <p><strong>Total:</strong> R$ ${total.toFixed(2)}</p>
+                    <p><strong>Pagamento:</strong> ${recibo.formaPagamento}</p>
+                    ${recibo.observacoes ? `<p><strong>Obs:</strong> ${recibo.observacoes}</p>` : ''}
+                </div>
+            `;
+        }
+
+        // Recibos functions
+        async function loadRecibos() {
+            try {
+                const response = await fetch(RECIBOS_API);
+                const recibos = await response.json();
+                displayRecibos(recibos);
+            } catch (error) {
+                console.error('Erro ao carregar recibos:', error);
+            }
+        }
+
+        function displayRecibos(recibos) {
+            const container = document.getElementById('recibosList');
+            container.innerHTML = recibos.map(recibo => `
+                <div class="recibo">
+                    <h4>Recibo #${recibo.numeroChamada}</h4>
+                    <p>Data: ${new Date(recibo.dataCriacao).toLocaleString()}</p>
+                    <p>Total: R$ ${(recibo.total / 100).toFixed(2)}</p>
+                    <p>Pagamento: ${recibo.formaPagamento}</p>
+                    <details>
+                        <summary>Itens (${recibo.itens.length})</summary>
+                        ${recibo.itens.map(item => `<div>${item.nome} x${item.quantidade}</div>`).join('')}
+                    </details>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        loadProducts();
+    </script>
+</body>
+</html>

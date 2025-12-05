@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerenciar Produtos - Funcionário</title>
+  <style>
+    body{font-family: Arial, Helvetica, sans-serif; max-width:1000px;margin:24px auto;color:#222}
+    h1{font-size:20px}
+    label{display:block;margin-top:8px}
+    input[type=text], input[type=number]{width:100%;padding:8px;margin-top:4px}
+    button{padding:8px 12px;margin-top:8px;margin-right:8px}
+    .item{border:1px solid #ddd;padding:8px;margin:8px 0;border-radius:6px}
+    .flex{display:flex;gap:8px}
+    .flex > *{flex:1}
+    pre{background:#f6f6f6;padding:12px;border-radius:6px;margin-top:8px}
+    .error{color:red;font-weight:bold}
+    .success{color:green;font-weight:bold}
+    table{width:100%;border-collapse:collapse;margin-top:16px}
+    th,td{border:1px solid #ddd;padding:8px;text-align:left}
+    th{background:#f2f2f2}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000}
+    .modal-content{background:white;margin:10% auto;padding:20px;border-radius:8px;width:80%;max-width:500px}
+    .close{float:right;font-size:28px;font-weight:bold;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h1>Gerenciar Produtos - Funcionário</h1>
+
+  <div>
+    <h2>Cadastrar Novo Produto</h2>
+    <div class="item">
+      <div class="flex">
+        <label>Nome do produto
+          <input id="nome" type="text" placeholder="Ex: Hambúrguer" />
+        </label>
+        <label>Preço (R$)
+          <input id="preco" type="number" min="0" step="0.01" placeholder="0.00" />
+        </label>
+      </div>
+      <button id="cadastrar">Cadastrar Produto</button>
+      <div id="mensagemCadastro"></div>
+    </div>
+
+    <h2>Lista de Produtos</h2>
+    <button id="atualizarLista">Atualizar Lista</button>
+    <table id="tabelaProdutos">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Preço</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="corpoTabela">
+        <tr>
+          <td colspan="4">Carregando produtos...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal para editar produto -->
+  <div id="modalEditar" class="modal">
+    <div class="modal-content">
+      <span class="close" id="fecharModal">&times;</span>
+      <h2>Editar Produto</h2>
+      <input type="hidden" id="editId" />
+      <label>Nome do produto
+        <input id="editNome" type="text" />
+      </label>
+      <label>Preço (R$)
+        <input id="editPreco" type="number" min="0" step="0.01" />
+      </label>
+      <button id="salvarEdicao">Salvar Alterações</button>
+      <button id="cancelarEdicao">Cancelar</button>
+      <div id="mensagemEdicao"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/products';
+    const tabelaProdutos = document.getElementById('corpoTabela');
+    const mensagemCadastro = document.getElementById('mensagemCadastro');
+    const modalEditar = document.getElementById('modalEditar');
+    const fecharModal = document.getElementById('fecharModal');
+    const cancelarEdicao = document.getElementById('cancelarEdicao');
+    let produtoEditando = null;
+
+    // Formatar preço para exibição
+    function formatarPreco(cents) {
+      return (cents / 100).toFixed(2);
+    }
+
+    // Formatar preço para API (converter reais para centavos)
+    function precoParaCentavos(preco) {
+      return Math.round(parseFloat(preco) * 100);
+    }
+
+    // Mostrar mensagem
+    function mostrarMensagem(elemento, mensagem, tipo = 'success') {
+      elemento.innerHTML = `<div class="${tipo}">${mensagem}</div>`;
+      setTimeout(() => elemento.innerHTML = '', 5000);
+    }
+
+    // Carregar produtos
+    async function carregarProdutos() {
+      try {
+        const res = await fetch(API_BASE);
+        if (!res.ok) throw new Error('Erro ao carregar produtos');
+
+        const produtos = await res.json();
+        renderizarTabela(produtos);
+      } catch (err) {
+        tabelaProdutos.innerHTML = `<tr><td colspan="4" class="error">Erro ao carregar produtos: ${err.message}</td></tr>`;
+      }
+    }
+
+    // Renderizar tabela de produtos
+    function renderizarTabela(produtos) {
+      if (produtos.length === 0) {
+        tabelaProdutos.innerHTML = '<tr><td colspan="4">Nenhum produto cadastrado</td></tr>';
+        return;
+      }
+
+      tabelaProdutos.innerHTML = produtos.map(produto => `
+        <tr>
+          <td>${produto.id}</td>
+          <td>${produto.name}</td>
+          <td>R$ ${formatarPreco(produto.priceInCents)}</td>
+          <td>
+            <button onclick="editarProduto(${produto.id}, '${produto.name}', ${produto.priceInCents})">Editar</button>
+            <button onclick="deletarProduto(${produto.id}, '${produto.name}')" style="background:red;color:white">Excluir</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Cadastrar produto
+    document.getElementById('cadastrar').addEventListener('click', async () => {
+      const nome = document.getElementById('nome').value.trim();
+      const preco = document.getElementById('preco').value;
+
+      if (!nome) {
+        mostrarMensagem(mensagemCadastro, 'Nome do produto é obrigatório', 'error');
+        return;
+      }
+
+      if (!preco || parseFloat(preco) <= 0) {
+        mostrarMensagem(mensagemCadastro, 'Preço deve ser maior que zero', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            name: nome,
+            priceInCents: precoParaCentavos(preco)
+          })
+        });
+
+        if (!res.ok) {
+          const error = await res.text();
+          throw new Error(`Erro ${res.status}: ${error}`);
+        }
+
+        const produto = await res.json();
+        mostrarMensagem(mensagemCadastro, `Produto "${produto.name}" cadastrado com sucesso!`);
+
+        // Limpar campos
+        document.getElementById('nome').value = '';
+        document.getElementById('preco').value = '';
+
+        // Atualizar lista
+        carregarProdutos();
+      } catch (err) {
+        mostrarMensagem(mensagemCadastro, err.message, 'error');
+      }
+    });
+
+    // Abrir modal de edição
+    window.editarProduto = function(id, nome, priceInCents) {
+      produtoEditando = { id, nome, priceInCents };
+      document.getElementById('editId').value = id;
+      document.getElementById('editNome').value = nome;
+      document.getElementById('editPreco').value = formatarPreco(priceInCents);
+      modalEditar.style.display = 'block';
+    };
+
+    // Salvar edição
+    document.getElementById('salvarEdicao').addEventListener('click', async () => {
+      const id = document.getElementById('editId').value;
+      const nome = document.getElementById('editNome').value.trim();
+      const preco = document.getElementById('editPreco').value;
+
+      if (!nome) {
+        mostrarMensagem(document.getElementById('mensagemEdicao'), 'Nome é obrigatório', 'error');
+        return;
+      }
+
+      if (!preco || parseFloat(preco) <= 0) {
+        mostrarMensagem(document.getElementById('mensagemEdicao'), 'Preço deve ser maior que zero', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/${id}`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            name: nome,
+            priceInCents: precoParaCentavos(preco)
+          })
+        });
+
+        if (!res.ok) {
+          const error = await res.text();
+          throw new Error(`Erro ${res.status}: ${error}`);
+        }
+
+        const produto = await res.json();
+        mostrarMensagem(document.getElementById('mensagemEdicao'), `Produto "${produto.name}" atualizado com sucesso!`);
+        modalEditar.style.display = 'none';
+        carregarProdutos();
+      } catch (err) {
+        mostrarMensagem(document.getElementById('mensagemEdicao'), err.message, 'error');
+      }
+    });
+
+    // Deletar produto
+    window.deletarProduto = function(id, nome) {
+      if (!confirm(`Tem certeza que deseja excluir o produto "${nome}"?`)) {
+        return;
+      }
+
+      fetch(`${API_BASE}/${id}`, { method: 'DELETE' })
+        .then(res => {
+          if (!res.ok) throw new Error(`Erro ${res.status}`);
+          mostrarMensagem(mensagemCadastro, `Produto "${nome}" excluído com sucesso!`);
+          carregarProdutos();
+        })
+        .catch(err => mostrarMensagem(mensagemCadastro, `Erro ao excluir produto: ${err.message}`, 'error'));
+    };
+
+    // Eventos do modal
+    fecharModal.addEventListener('click', () => modalEditar.style.display = 'none');
+    cancelarEdicao.addEventListener('click', () => modalEditar.style.display = 'none');
+
+    // Fechar modal clicando fora
+    window.addEventListener('click', (e) => {
+      if (e.target === modalEditar) {
+        modalEditar.style.display = 'none';
+      }
+    });
+
+    // Botão atualizar lista
+    document.getElementById('atualizarLista').addEventListener('click', carregarProdutos);
+
+    // Carregar produtos ao iniciar
+    carregarProdutos();
+  </script>
+</body>
+</html>
