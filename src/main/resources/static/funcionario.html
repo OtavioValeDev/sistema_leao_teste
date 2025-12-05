@@ -1,266 +1,693 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gerenciar Produtos - Funcionário</title>
-  <style>
-    body{font-family: Arial, Helvetica, sans-serif; max-width:1000px;margin:24px auto;color:#222}
-    h1{font-size:20px}
-    label{display:block;margin-top:8px}
-    input[type=text], input[type=number]{width:100%;padding:8px;margin-top:4px}
-    button{padding:8px 12px;margin-top:8px;margin-right:8px}
-    .item{border:1px solid #ddd;padding:8px;margin:8px 0;border-radius:6px}
-    .flex{display:flex;gap:8px}
-    .flex > *{flex:1}
-    pre{background:#f6f6f6;padding:12px;border-radius:6px;margin-top:8px}
-    .error{color:red;font-weight:bold}
-    .success{color:green;font-weight:bold}
-    table{width:100%;border-collapse:collapse;margin-top:16px}
-    th,td{border:1px solid #ddd;padding:8px;text-align:left}
-    th{background:#f2f2f2}
-    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000}
-    .modal-content{background:white;margin:10% auto;padding:20px;border-radius:8px;width:80%;max-width:500px}
-    .close{float:right;font-size:28px;font-weight:bold;cursor:pointer}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👨‍🍳 Painel do Funcionário - Gestão de Produtos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1em;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        /* Add Product Section */
+        .add-product-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .add-product-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .add-button {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+        .add-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Products Section */
+        .products-section {
+            padding: 30px;
+        }
+        .products-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .products-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .refresh-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        .refresh-button:hover {
+            background: #2980b9;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .products-table th,
+        .products-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .products-table th {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .products-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .products-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .product-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .product-price {
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-button {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background 0.3s;
+        }
+        .edit-button:hover {
+            background: #e67e22;
+        }
+
+        .delete-button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background 0.3s;
+        }
+        .delete-button:hover {
+            background: #c0392b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+
+        .no-products {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-button {
+            font-size: 28px;
+            cursor: pointer;
+            color: #6c757d;
+            transition: color 0.3s;
+        }
+        .close-button:hover {
+            color: #e74c3c;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .modal-button.primary {
+            background: #3498db;
+            color: white;
+        }
+        .modal-button.primary:hover {
+            background: #2980b9;
+        }
+
+        .modal-button.secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .modal-button.secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .products-table {
+                font-size: 0.9em;
+            }
+            .products-table th,
+            .products-table td {
+                padding: 8px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                gap: 4px;
+            }
+            .edit-button,
+            .delete-button {
+                padding: 4px 8px;
+                font-size: 0.7em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Gerenciar Produtos - Funcionário</h1>
+    <div class="container">
+        <div class="header">
+            <h1>👨‍🍳 Painel do Funcionário</h1>
+            <p>Gerencie o cardápio do restaurante</p>
+        </div>
 
-  <div>
-    <h2>Cadastrar Novo Produto</h2>
-    <div class="item">
-      <div class="flex">
-        <label>Nome do produto
-          <input id="nome" type="text" placeholder="Ex: Hambúrguer" />
-        </label>
-        <label>Preço (R$)
-          <input id="preco" type="number" min="0" step="0.01" placeholder="0.00" />
-        </label>
-      </div>
-      <button id="cadastrar">Cadastrar Produto</button>
-      <div id="mensagemCadastro"></div>
+        <div class="main-content">
+            <!-- Add Product Section -->
+            <div class="add-product-section">
+                <h2>➕ Adicionar Novo Produto</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="productName">Nome do Produto</label>
+                        <input type="text" id="productName" placeholder="Ex: Hambúrguer, Refrigerante, Batata Frita">
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Preço (R$)</label>
+                        <input type="number" id="productPrice" placeholder="0,00" min="0" step="0.01">
+                    </div>
+                    <button class="add-button" id="addProductButton">
+                        ➕ Adicionar
+                    </button>
+                </div>
+                <div id="messageArea"></div>
+            </div>
+
+            <!-- Products Section -->
+            <div class="products-section">
+                <div class="products-controls">
+                    <h2>📋 Produtos Cadastrados</h2>
+                    <button class="refresh-button" id="refreshButton">
+                        🔄 Atualizar Lista
+                    </button>
+                </div>
+
+                <div id="productsTableContainer">
+                    <div class="loading">Carregando produtos...</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <h2>Lista de Produtos</h2>
-    <button id="atualizarLista">Atualizar Lista</button>
-    <table id="tabelaProdutos">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome</th>
-          <th>Preço</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="corpoTabela">
-        <tr>
-          <td colspan="4">Carregando produtos...</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <!-- Edit Product Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Editar Produto</h2>
+                <span class="close-button" onclick="closeEditModal()">&times;</span>
+            </div>
 
-  <!-- Modal para editar produto -->
-  <div id="modalEditar" class="modal">
-    <div class="modal-content">
-      <span class="close" id="fecharModal">&times;</span>
-      <h2>Editar Produto</h2>
-      <input type="hidden" id="editId" />
-      <label>Nome do produto
-        <input id="editNome" type="text" />
-      </label>
-      <label>Preço (R$)
-        <input id="editPreco" type="number" min="0" step="0.01" />
-      </label>
-      <button id="salvarEdicao">Salvar Alterações</button>
-      <button id="cancelarEdicao">Cancelar</button>
-      <div id="mensagemEdicao"></div>
+            <div class="modal-body">
+                <input type="hidden" id="editProductId">
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="editProductName">Nome do Produto</label>
+                    <input type="text" id="editProductName" placeholder="Nome do produto">
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductPrice">Preço (R$)</label>
+                    <input type="number" id="editProductPrice" placeholder="0,00" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="modal-button secondary" onclick="closeEditModal()">Cancelar</button>
+                <button class="modal-button primary" onclick="saveProductEdit()">Salvar Alterações</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const API_BASE = '/products';
-    const tabelaProdutos = document.getElementById('corpoTabela');
-    const mensagemCadastro = document.getElementById('mensagemCadastro');
-    const modalEditar = document.getElementById('modalEditar');
-    const fecharModal = document.getElementById('fecharModal');
-    const cancelarEdicao = document.getElementById('cancelarEdicao');
-    let produtoEditando = null;
+    <script>
+        const API_BASE = '/products';
+        let currentProducts = [];
 
-    // Formatar preço para exibição
-    function formatarPreco(cents) {
-      return (cents / 100).toFixed(2);
-    }
-
-    // Formatar preço para API (converter reais para centavos)
-    function precoParaCentavos(preco) {
-      return Math.round(parseFloat(preco) * 100);
-    }
-
-    // Mostrar mensagem
-    function mostrarMensagem(elemento, mensagem, tipo = 'success') {
-      elemento.innerHTML = `<div class="${tipo}">${mensagem}</div>`;
-      setTimeout(() => elemento.innerHTML = '', 5000);
-    }
-
-    // Carregar produtos
-    async function carregarProdutos() {
-      try {
-        const res = await fetch(API_BASE);
-        if (!res.ok) throw new Error('Erro ao carregar produtos');
-
-        const produtos = await res.json();
-        renderizarTabela(produtos);
-      } catch (err) {
-        tabelaProdutos.innerHTML = `<tr><td colspan="4" class="error">Erro ao carregar produtos: ${err.message}</td></tr>`;
-      }
-    }
-
-    // Renderizar tabela de produtos
-    function renderizarTabela(produtos) {
-      if (produtos.length === 0) {
-        tabelaProdutos.innerHTML = '<tr><td colspan="4">Nenhum produto cadastrado</td></tr>';
-        return;
-      }
-
-      tabelaProdutos.innerHTML = produtos.map(produto => `
-        <tr>
-          <td>${produto.id}</td>
-          <td>${produto.name}</td>
-          <td>R$ ${formatarPreco(produto.priceInCents)}</td>
-          <td>
-            <button onclick="editarProduto(${produto.id}, '${produto.name}', ${produto.priceInCents})">Editar</button>
-            <button onclick="deletarProduto(${produto.id}, '${produto.name}')" style="background:red;color:white">Excluir</button>
-          </td>
-        </tr>
-      `).join('');
-    }
-
-    // Cadastrar produto
-    document.getElementById('cadastrar').addEventListener('click', async () => {
-      const nome = document.getElementById('nome').value.trim();
-      const preco = document.getElementById('preco').value;
-
-      if (!nome) {
-        mostrarMensagem(mensagemCadastro, 'Nome do produto é obrigatório', 'error');
-        return;
-      }
-
-      if (!preco || parseFloat(preco) <= 0) {
-        mostrarMensagem(mensagemCadastro, 'Preço deve ser maior que zero', 'error');
-        return;
-      }
-
-      try {
-        const res = await fetch(API_BASE, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            name: nome,
-            priceInCents: precoParaCentavos(preco)
-          })
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadProducts();
         });
 
-        if (!res.ok) {
-          const error = await res.text();
-          throw new Error(`Erro ${res.status}: ${error}`);
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('addProductButton').addEventListener('click', addProduct);
+            document.getElementById('refreshButton').addEventListener('click', loadProducts);
         }
 
-        const produto = await res.json();
-        mostrarMensagem(mensagemCadastro, `Produto "${produto.name}" cadastrado com sucesso!`);
+        // Load products from API
+        async function loadProducts() {
+            const container = document.getElementById('productsTableContainer');
+            container.innerHTML = '<div class="loading">Carregando produtos...</div>';
 
-        // Limpar campos
-        document.getElementById('nome').value = '';
-        document.getElementById('preco').value = '';
+            try {
+                const response = await fetch(API_BASE);
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar produtos');
+                }
 
-        // Atualizar lista
-        carregarProdutos();
-      } catch (err) {
-        mostrarMensagem(mensagemCadastro, err.message, 'error');
-      }
-    });
+                currentProducts = await response.json();
+                renderProductsTable();
+            } catch (error) {
+                container.innerHTML = `<div class="no-products">Erro ao carregar produtos: ${error.message}</div>`;
+                console.error('Erro ao carregar produtos:', error);
+            }
+        }
 
-    // Abrir modal de edição
-    window.editarProduto = function(id, nome, priceInCents) {
-      produtoEditando = { id, nome, priceInCents };
-      document.getElementById('editId').value = id;
-      document.getElementById('editNome').value = nome;
-      document.getElementById('editPreco').value = formatarPreco(priceInCents);
-      modalEditar.style.display = 'block';
-    };
+        // Render products table
+        function renderProductsTable() {
+            const container = document.getElementById('productsTableContainer');
 
-    // Salvar edição
-    document.getElementById('salvarEdicao').addEventListener('click', async () => {
-      const id = document.getElementById('editId').value;
-      const nome = document.getElementById('editNome').value.trim();
-      const preco = document.getElementById('editPreco').value;
+            if (currentProducts.length === 0) {
+                container.innerHTML = '<div class="no-products">Nenhum produto cadastrado ainda.</div>';
+                return;
+            }
 
-      if (!nome) {
-        mostrarMensagem(document.getElementById('mensagemEdicao'), 'Nome é obrigatório', 'error');
-        return;
-      }
+            const tableHtml = `
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Preço</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${currentProducts.map(product => `
+                            <tr>
+                                <td>${product.id}</td>
+                                <td><span class="product-name">${product.name}</span></td>
+                                <td><span class="product-price">R$ ${(product.priceInCents / 100).toFixed(2)}</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="edit-button" onclick="openEditModal(${product.id}, '${product.name}', ${product.priceInCents})">
+                                            ✏️ Editar
+                                        </button>
+                                        <button class="delete-button" onclick="deleteProduct(${product.id}, '${product.name}')">
+                                            🗑️ Excluir
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
 
-      if (!preco || parseFloat(preco) <= 0) {
-        mostrarMensagem(document.getElementById('mensagemEdicao'), 'Preço deve ser maior que zero', 'error');
-        return;
-      }
+            container.innerHTML = tableHtml;
+        }
 
-      try {
-        const res = await fetch(`${API_BASE}/${id}`, {
-          method: 'PUT',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            name: nome,
-            priceInCents: precoParaCentavos(preco)
-          })
+        // Add new product
+        async function addProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const price = document.getElementById('productPrice').value;
+
+            // Clear previous messages
+            showMessage('', '');
+
+            // Validation
+            if (!name) {
+                showMessage('Nome do produto é obrigatório!', 'error');
+                return;
+            }
+
+            if (!price || parseFloat(price) <= 0) {
+                showMessage('Preço deve ser maior que zero!', 'error');
+                return;
+            }
+
+            const button = document.getElementById('addProductButton');
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = '⏳ Adicionando...';
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        priceInCents: Math.round(parseFloat(price) * 100)
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`Erro ${response.status}: ${error}`);
+                }
+
+                const newProduct = await response.json();
+                showMessage(`✅ Produto "${newProduct.name}" adicionado com sucesso!`, 'success');
+
+                // Clear form
+                document.getElementById('productName').value = '';
+                document.getElementById('productPrice').value = '';
+
+                // Reload products
+                loadProducts();
+
+            } catch (error) {
+                console.error('Erro ao adicionar produto:', error);
+                showMessage(`❌ Erro ao adicionar produto: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        // Delete product
+        async function deleteProduct(id, name) {
+            if (!confirm(`Tem certeza que deseja excluir o produto "${name}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}`);
+                }
+
+                showMessage(`🗑️ Produto "${name}" excluído com sucesso!`, 'success');
+                loadProducts();
+
+            } catch (error) {
+                console.error('Erro ao excluir produto:', error);
+                showMessage(`❌ Erro ao excluir produto: ${error.message}`, 'error');
+            }
+        }
+
+        // Edit product modal functions
+        function openEditModal(id, name, priceInCents) {
+            document.getElementById('editProductId').value = id;
+            document.getElementById('editProductName').value = name;
+            document.getElementById('editProductPrice').value = (priceInCents / 100).toFixed(2);
+
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        async function saveProductEdit() {
+            const id = document.getElementById('editProductId').value;
+            const name = document.getElementById('editProductName').value.trim();
+            const price = document.getElementById('editProductPrice').value;
+
+            // Validation
+            if (!name) {
+                alert('Nome do produto é obrigatório!');
+                return;
+            }
+
+            if (!price || parseFloat(price) <= 0) {
+                alert('Preço deve ser maior que zero!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        priceInCents: Math.round(parseFloat(price) * 100)
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`Erro ${response.status}: ${error}`);
+                }
+
+                const updatedProduct = await response.json();
+                showMessage(`✏️ Produto "${updatedProduct.name}" atualizado com sucesso!`, 'success');
+
+                closeEditModal();
+                loadProducts();
+
+            } catch (error) {
+                console.error('Erro ao atualizar produto:', error);
+                alert(`Erro ao atualizar produto: ${error.message}`);
+            }
+        }
+
+        // Utility functions
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('messageArea');
+            if (!message) {
+                messageArea.innerHTML = '';
+                return;
+            }
+
+            messageArea.innerHTML = `<div class="message ${type}">${message}</div>`;
+
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageArea.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        }
+
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeEditModal();
+            }
         });
-
-        if (!res.ok) {
-          const error = await res.text();
-          throw new Error(`Erro ${res.status}: ${error}`);
-        }
-
-        const produto = await res.json();
-        mostrarMensagem(document.getElementById('mensagemEdicao'), `Produto "${produto.name}" atualizado com sucesso!`);
-        modalEditar.style.display = 'none';
-        carregarProdutos();
-      } catch (err) {
-        mostrarMensagem(document.getElementById('mensagemEdicao'), err.message, 'error');
-      }
-    });
-
-    // Deletar produto
-    window.deletarProduto = function(id, nome) {
-      if (!confirm(`Tem certeza que deseja excluir o produto "${nome}"?`)) {
-        return;
-      }
-
-      fetch(`${API_BASE}/${id}`, { method: 'DELETE' })
-        .then(res => {
-          if (!res.ok) throw new Error(`Erro ${res.status}`);
-          mostrarMensagem(mensagemCadastro, `Produto "${nome}" excluído com sucesso!`);
-          carregarProdutos();
-        })
-        .catch(err => mostrarMensagem(mensagemCadastro, `Erro ao excluir produto: ${err.message}`, 'error'));
-    };
-
-    // Eventos do modal
-    fecharModal.addEventListener('click', () => modalEditar.style.display = 'none');
-    cancelarEdicao.addEventListener('click', () => modalEditar.style.display = 'none');
-
-    // Fechar modal clicando fora
-    window.addEventListener('click', (e) => {
-      if (e.target === modalEditar) {
-        modalEditar.style.display = 'none';
-      }
-    });
-
-    // Botão atualizar lista
-    document.getElementById('atualizarLista').addEventListener('click', carregarProdutos);
-
-    // Carregar produtos ao iniciar
-    carregarProdutos();
-  </script>
+    </script>
 </body>
 </html>
