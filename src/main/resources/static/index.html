@@ -3,135 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product API Test</title>
+    <title>Sistema de Gestão - Senhor Leão</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
-        input, button { margin: 5px; padding: 8px; }
-        .product { margin: 10px 0; padding: 10px; border: 1px solid #eee; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .delete { background: #dc3545; }
-        .delete:hover { background: #c82333; }
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+      body {
+          font-family: 'Poppins', sans-serif;
+          background: linear-gradient(180deg,#fff 0%, #fff6e9 100%);
+      }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Product API Test</h1>
-
-        <div class="section">
-            <h2>Create Product</h2>
-            <input type="text" id="name" placeholder="Product name" required>
-            <input type="number" id="price" placeholder="Price in cents" required>
-            <button onclick="createProduct()">Create</button>
-            <div id="createResult"></div>
-        </div>
-
-        <div class="section">
-            <h2>All Products</h2>
-            <button onclick="loadProducts()">Load Products</button>
-            <div id="products"></div>
-        </div>
-
-        <div class="section">
-            <h2>Update Product</h2>
-            <input type="number" id="updateId" placeholder="Product ID" required>
-            <input type="text" id="updateName" placeholder="New name" required>
-            <input type="number" id="updatePrice" placeholder="New price in cents" required>
-            <button onclick="updateProduct()">Update</button>
-            <div id="updateResult"></div>
-        </div>
-    </div>
-
-    <script>
-        const API_BASE = '/products';
-
-        async function createProduct() {
-            const name = document.getElementById('name').value;
-            const price = document.getElementById('price').value;
-
-            if (!name || !price) {
-                alert('Please fill all fields');
-                return;
-            }
-
-            try {
-                const response = await fetch(API_BASE, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, priceInCents: parseInt(price) })
-                });
-
-                const result = await response.json();
-                document.getElementById('createResult').innerHTML = `<p>Created: ${JSON.stringify(result)}</p>`;
-                loadProducts();
-            } catch (error) {
-                document.getElementById('createResult').innerHTML = `<p>Error: ${error.message}</p>`;
-            }
-        }
-
-        async function loadProducts() {
-            try {
-                const response = await fetch(API_BASE);
-                const products = await response.json();
-                displayProducts(products);
-            } catch (error) {
-                document.getElementById('products').innerHTML = `<p>Error: ${error.message}</p>`;
-            }
-        }
-
-        function displayProducts(products) {
-            const container = document.getElementById('products');
-            container.innerHTML = products.map(product => `
-                <div class="product">
-                    <strong>ID: ${product.id}</strong><br>
-                    Name: ${product.name}<br>
-                    Price: ${(product.priceInCents / 100).toFixed(2)}<br>
-                    <button onclick="deleteProduct(${product.id})" class="delete">Delete</button>
+<body class="bg-gray-100">
+    <main class="min-h-screen bg-gradient-to-br from-orange-50 to-blue-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md space-y-8">
+            <!-- Logo -->
+            <div class="text-center">
+                <div class="flex justify-center items-center mb-4">
+                    <span class="text-4xl">☕</span>
                 </div>
-            `).join('');
-        }
+                <h1 class="text-2xl font-bold text-gray-800">Senhor Leão</h1>
+            </div>
 
-        async function deleteProduct(id) {
-            if (!confirm('Delete this product?')) return;
+            <!-- Buttons -->
+            <div class="space-y-4">
+                <a href="cliente.html"
+                   class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 px-6 rounded-xl transition duration-300 transform hover:scale-105 hover:shadow-lg flex items-center justify-center text-center">
+                    Área do Cliente
+                </a>
 
-            try {
-                await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-                loadProducts();
-            } catch (error) {
-                alert('Error deleting product: ' + error.message);
-            }
-        }
-
-        async function updateProduct() {
-            const id = document.getElementById('updateId').value;
-            const name = document.getElementById('updateName').value;
-            const price = document.getElementById('updatePrice').value;
-
-            if (!id || !name || !price) {
-                alert('Please fill all fields');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, priceInCents: parseInt(price) })
-                });
-
-                const result = await response.json();
-                document.getElementById('updateResult').innerHTML = `<p>Updated: ${JSON.stringify(result)}</p>`;
-                loadProducts();
-            } catch (error) {
-                document.getElementById('updateResult').innerHTML = `<p>Error: ${error.message}</p>`;
-            }
-        }
-
-        // Load products on page load
-        loadProducts();
-    </script>
+                <a href="funcionario.html"
+                   class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 px-6 rounded-xl transition duration-300 transform hover:scale-105 hover:shadow-lg flex items-center justify-center text-center">
+                    Painel do Funcionário
+                </a>
+            </div>
+        </div>
+    </main>
+    
 </body>
 </html>
 

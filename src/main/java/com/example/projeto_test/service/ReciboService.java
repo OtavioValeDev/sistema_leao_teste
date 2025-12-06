@@ -4,6 +4,7 @@ import com.example.projeto_test.model.Recibo;
 import com.example.projeto_test.model.Recibo.ItemCompra;
 import com.example.projeto_test.repository.ReciboRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,12 +39,31 @@ public class ReciboService {
      * @throws IllegalArgumentException Se o carrinho estiver vazio
      */
     public Recibo createRecibo(List<ItemCompra> itens, String observacoes, String formaPagamento) {
+        return createRecibo(itens, observacoes, formaPagamento, "NORMAL");
+    }
+
+    /**
+     * Cria um novo recibo com itens de compra e tipo de atendimento.
+     *
+     * Valida se há itens no carrinho, gera automaticamente o número
+     * de chamada aleatório e calcula o total da venda.
+     *
+     * @param itens Lista de itens comprados
+     * @param observacoes Observações especiais do cliente
+     * @param formaPagamento Método de pagamento escolhido
+     * @param tipoAtendimento Tipo de atendimento (NORMAL ou PREFERENCIAL)
+     * @return Recibo criado e salvo no banco
+     * @throws IllegalArgumentException Se o carrinho estiver vazio
+     */
+    public Recibo createRecibo(List<ItemCompra> itens, String observacoes, String formaPagamento, String tipoAtendimento) {
         if (itens == null || itens.isEmpty()) {
-            throw new IllegalArgumentException("Carrinho não pode estar vazio");
+            if (!"PREFERENCIAL".equals(tipoAtendimento)) {
+                throw new IllegalArgumentException("Carrinho não pode estar vazio");
+            }
         }
 
         Recibo recibo = new Recibo();
-        recibo.gerarRecibo(itens, observacoes, formaPagamento);
+        recibo.gerarRecibo(itens, observacoes, formaPagamento, tipoAtendimento);
         return reciboRepository.save(recibo);
     }
 
@@ -63,7 +83,7 @@ public class ReciboService {
      * @return Recibo encontrado
      * @throws RuntimeException Se o recibo não for encontrado
      */
-    public Recibo getReciboById(Long id) {
+    public Recibo getReciboById(@NonNull Long id) {
         return reciboRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recibo not found"));
     }

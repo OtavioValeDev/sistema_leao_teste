@@ -3,6 +3,7 @@ package com.example.projeto_test.service;
 import com.example.projeto_test.model.Product;
 import com.example.projeto_test.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class ProductService {
      * @param product Produto a ser criado (já validado)
      * @return Produto criado com ID gerado
      */
-    public Product createProduct(Product product) {
+    public Product createProduct(@NonNull Product product) {
         return productRepository.save(product);
     }
 
@@ -50,7 +51,7 @@ public class ProductService {
      * @return Produto encontrado
      * @throws RuntimeException Se o produto não for encontrado
      */
-    public Product getProductById(Long id) {
+    public Product getProductById(@NonNull Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
@@ -63,7 +64,7 @@ public class ProductService {
      * @return Produto atualizado
      * @throws RuntimeException Se o produto não for encontrado
      */
-    public Product updateProduct(Long id, Product productDetails) {
+    public Product updateProduct(@NonNull Long id, @NonNull Product productDetails) {
         Product product = getProductById(id);
         product.setName(productDetails.getName());
         product.setPriceInCents(productDetails.getPriceInCents());
@@ -76,7 +77,7 @@ public class ProductService {
      * @param id ID do produto a ser removido
      * @throws RuntimeException Se o produto não for encontrado
      */
-    public void deleteProduct(Long id) {
+    public void deleteProduct(@NonNull Long id) {
         if (!productRepository.existsById(id)) {
             throw new RuntimeException("Product not found");
         }

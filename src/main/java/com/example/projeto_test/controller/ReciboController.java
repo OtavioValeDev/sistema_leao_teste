@@ -4,6 +4,7 @@ import com.example.projeto_test.model.Recibo;
 import com.example.projeto_test.service.ReciboService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,16 @@ public class ReciboController {
     ) {}
 
     /**
+     * Record para representar uma requisição de atendimento preferencial.
+     *
+     * Utilizado quando um cliente solicita atendimento especial
+     * sem fazer pedido de produtos.
+     */
+    public record AtendimentoPreferencialRequest(
+            String observacoes
+    ) {}
+
+    /**
      * Endpoint para gerar um novo recibo.
      *
      * Recebe os itens do carrinho, observações e forma de pagamento,
@@ -60,6 +71,30 @@ public class ReciboController {
             Recibo recibo = reciboService.createRecibo(req.itens(), req.observacoes(), req.formaPagamento());
             return ResponseEntity.status(HttpStatus.CREATED).body(recibo);
         } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Endpoint para criar um atendimento preferencial.
+     *
+     * Cria um recibo especial para atendimento preferencial sem itens,
+     * gerando um número de chamada prioritário.
+     *
+     * @param req Dados do atendimento preferencial
+     * @return Recibo de atendimento preferencial com status 201 (Created)
+     */
+    @PostMapping("/atendimento-preferencial")
+    public ResponseEntity<Recibo> atendimentoPreferencial(@RequestBody AtendimentoPreferencialRequest req) {
+        try {
+            Recibo recibo = reciboService.createRecibo(
+                java.util.Collections.emptyList(), // Lista vazia
+                req.observacoes(),
+                "ATENDIMENTO_PREFERENCIAL",
+                "PREFERENCIAL"
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(recibo);
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -82,7 +117,7 @@ public class ReciboController {
      * @return Recibo encontrado ou 404 se não existir
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Recibo> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Recibo> buscarPorId(@PathVariable @NonNull Long id) {
         try {
             Recibo recibo = reciboService.getReciboById(id);
             return ResponseEntity.ok(recibo);

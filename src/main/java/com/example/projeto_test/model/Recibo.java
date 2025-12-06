@@ -44,6 +44,9 @@ public class Recibo {
     /** Forma de pagamento utilizada (Dinheiro, Cartão, Pix, etc.) */
     private String formaPagamento;
 
+    /** Tipo de atendimento (NORMAL, PREFERENCIAL) */
+    private String tipoAtendimento = "NORMAL";
+
     /** Valor total da venda em centavos (para evitar problemas de arredondamento) */
     private Integer total;
 
@@ -120,11 +123,13 @@ public class Recibo {
      * @param itens Lista de itens comprados
      * @param observacoes Observações especiais do cliente
      * @param formaPagamento Forma de pagamento escolhida
+     * @param tipoAtendimento Tipo de atendimento (NORMAL ou PREFERENCIAL)
      */
-    public void gerarRecibo(List<ItemCompra> itens, String observacoes, String formaPagamento) {
+    public void gerarRecibo(List<ItemCompra> itens, String observacoes, String formaPagamento, String tipoAtendimento) {
         this.itens = itens != null ? itens : new ArrayList<>();
         this.observacoes = observacoes;
         this.formaPagamento = formaPagamento;
+        this.tipoAtendimento = tipoAtendimento != null ? tipoAtendimento : "NORMAL";
         this.dataCriacao = LocalDateTime.now();
 
         // Gera número de chamada aleatório de 4 dígitos (0000-9999)
@@ -167,6 +172,12 @@ public class Recibo {
 
     /** @param formaPagamento Forma de pagamento utilizada */
     public void setFormaPagamento(String formaPagamento) { this.formaPagamento = formaPagamento; }
+
+    /** @return Tipo de atendimento */
+    public String getTipoAtendimento() { return tipoAtendimento; }
+
+    /** @param tipoAtendimento Tipo de atendimento */
+    public void setTipoAtendimento(String tipoAtendimento) { this.tipoAtendimento = tipoAtendimento; }
 
     /** @return Valor total em centavos */
     public Integer getTotal() { return total; }
