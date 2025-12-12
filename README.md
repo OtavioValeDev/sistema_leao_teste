@@ -1,55 +1,128 @@
-# 🍔 Sistema de Gestão de Restaurante - Recibos Digitais
+# 🍽️ Sistema de Gestão de Restaurante - Senhor Leão
 
-[![Java](https://img.shields.io/badge/Java-21+-orange.svg)](https://openjdk.java.net/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Maven](https://img.shields.io/badge/Maven-3.9+-blue.svg)](https://maven.apache.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Um sistema completo de gestão para restaurantes, desenvolvido em **Spring Boot** com interface web responsiva. Permite o gerenciamento de cardápios, pedidos em tempo real e atendimento preferencial.
 
-> Sistema completo para gestão de restaurante com geração automática de recibos/notinhas digitais, similar aos sistemas de McDonald's e Burger King.
+## 📋 Visão Geral
 
----
+O **Sistema de Gestão de Restaurante** é uma solução completa para restaurantes que desejam modernizar sua operação. O sistema oferece:
 
-## 📋 Sumário Completo
+- ✅ **Cardápio digital** com produtos organizados
+- ✅ **Pedidos em tempo real** via interface web
+- ✅ **Sistema de atendimento preferencial** com notificações
+- ✅ **Painel administrativo** para funcionários
+- ✅ **Histórico de pedidos** e recibos
+- ✅ **Interface responsiva** para desktop e mobile
 
-### 📖 **Sobre o Projeto**
-- [🎯 Visão Geral](#-visão-geral)
-- [🏗️ Arquitetura do Sistema](#️-arquitetura-do-sistema)
-- [📊 Organograma das Classes](#-organograma-das-classes)
-- [✨ Funcionalidades Detalhadas](#-funcionalidades-detalhadas)
+## 🏗️ Arquitetura
 
-### 🚀 **Instalação e Uso**
-- [⚡ Instalação e Execução](#-instalação-e-execução)
-- [🖥️ Guia de Testes](#️-guia-de-testes)
-- [🔄 Fluxo de Funcionamento](#-fluxo-de-funcionamento)
+### Tecnologias Principais
 
-### 📁 **Estrutura Técnica**
-- [📂 Estrutura do Projeto](#-estrutura-do-projeto)
-- [🔧 Tecnologias Utilizadas](#-tecnologias-utilizadas)
-- [💾 Banco de Dados](#-banco-de-dados)
-- [📡 APIs REST](#-apis-rest)
+| Componente | Tecnologia | Versão |
+|------------|------------|--------|
+| **Backend** | Spring Boot | 3.5.8 |
+| **Frontend** | HTML5 + CSS3 + JavaScript | ES6+ |
+| **Banco de Dados** | H2 Database | Em memória |
+| **Build Tool** | Maven | 3.9+ |
+| **Java** | OpenJDK | 22 |
 
-### 🛠️ **Suporte e Manutenção**
-- [🛠️ Troubleshooting](#️-troubleshooting)
-- [📝 Versionamento Git](#-versionamento-git)
-- [🎯 Roadmap e Próximos Passos](#-roadmap-e-próximos-passos)
-- [📞 Suporte e Contribuição](#-suporte-e-contribuição)
-- [📝 Licença e Direitos Autorais](#-licença-e-direitos-autorais)
+### Estrutura do Projeto
 
----
+```
+sistema-leao/
+├── src/main/java/com/example/projeto_test/
+│   ├── config/           # Configurações (CORS, Web)
+│   ├── controller/       # Controllers REST
+│   ├── model/           # Entidades JPA
+│   ├── repository/      # Repositórios de dados
+│   └── service/         # Lógica de negócio
+├── src/main/resources/
+│   ├── static/          # Arquivos estáticos (HTML, CSS, JS)
+│   └── application.properties # Configurações da aplicação
+└── pom.xml             # Dependências Maven
+```
 
-## 🎯 Visão Geral
+## 🚀 Instalação e Execução
 
-### 🏪 **O Que é o Sistema**
+### Pré-requisitos
 
-Este sistema implementa uma solução completa para **gestão de restaurantes** com foco na experiência do cliente através de um sistema de recibos/notinhas digitais inovador.
+- **Java 22** ou superior
+- **Maven 3.9+**
+- Navegador web moderno
 
-### 🎯 **Problema Resolvido**
+### Passos para Instalação
 
-| Usuário | Problema Atual | Solução Proposta |
-|---|---|---|
-| **🍔 Cliente** | Espera em filas, dependência de atendente | Pedido self-service, recibo imediato |
-| **👨‍🍳 Funcionário** | Gestão manual de cardápio, controle de vendas | Sistema automatizado de gestão |
-| **🏪 Restaurante** | Ineficiência operacional, baixa produtividade | Processo otimizado e digital |
+1. **Clone o repositório:**
+   ```bash
+   git clone <url-do-repositorio>
+   cd sistema-leao
+   ```
+
+2. **Execute a aplicação:**
+   ```bash
+   # Windows (PowerShell)
+   .\mvnw spring-boot:run
+
+   # Linux/Mac
+   ./mvnw spring-boot:run
+   ```
+
+3. **Acesse o sistema:**
+   - Cliente: http://localhost:8081/cliente.html
+   - Funcionário: http://localhost:8081/funcionario.html
+   - Recibos: http://localhost:8081/recibos.html
+## 🔌 API REST
+
+### Endpoints de Produtos (`/api/products`)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/api/products` | Lista todos os produtos |
+| `POST` | `/api/products` | Cria novo produto |
+| `GET` | `/api/products/{id}` | Busca produto por ID |
+| `PUT` | `/api/products/{id}` | Atualiza produto |
+| `DELETE` | `/api/products/{id}` | Exclui produto |
+
+**Exemplo - Criar Produto:**
+```json
+POST /api/products
+{
+  "name": "X-Burger",
+  "priceInCents": 2500
+}
+```
+
+### Endpoints de Recibos (`/api/recibos`)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/api/recibos` | Lista todos os recibos |
+| `POST` | `/api/recibos/pagar` | Gera novo recibo |
+| `GET` | `/api/recibos/{numeroChamada}` | Busca recibo por número |
+| `DELETE` | `/api/recibos` | Limpa histórico |
+
+**Exemplo - Gerar Recibo:**
+```json
+POST /api/recibos/pagar
+{
+  "itens": [
+    {
+      "nome": "X-Burger",
+      "quantidade": 2,
+      "preco": 2500
+    }
+  ],
+  "observacoes": "Sem cebola",
+  "formaPagamento": "Dinheiro"
+}
+```
+
+### Endpoints de Notificações (`/api/products`)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/api/products/notificacao-preferencial` | Solicita atendimento preferencial |
+| `GET` | `/api/products/notificacoes-pendentes` | Lista notificações pendentes |
+| `POST` | `/api/products/notificacao/{id}/atender` | Marca notificação como atendida |
 
 ### 💡 **Solução Inovadora**
 
@@ -74,6 +147,120 @@ Sistema com **duas interfaces completamente separadas**:
 | **🔍 Consulta Posterior** | Cliente consulta pedido usando número | Acompanhamento pós-compra |
 | **📱 Experiência Similar** | Como McDonald's, Burger King | Familiaridade do usuário |
 | **⚡ Geração Instantânea** | Recibo criado em segundos | Sem espera |
+
+## 🗄️ Modelo de Dados
+
+### Product (Produto)
+```java
+{
+  "id": 1,
+  "name": "X-Burger",
+  "priceInCents": 2500  // R$ 25,00
+}
+```
+
+### Recibo (Pedido)
+```java
+{
+  "id": 1,
+  "numeroChamada": "001",
+  "itens": [...],
+  "total": 5000,  // em centavos
+  "formaPagamento": "Dinheiro",
+  "observacoes": "Sem cebola",
+  "dataCriacao": "2025-12-12T..."
+}
+```
+
+### Notificação Preferencial
+```java
+{
+  "id": 123456789,
+  "timestamp": "2025-12-12T...",
+  "type": "PREFERENTIAL_SERVICE",
+  "message": "Cliente solicitou atendimento preferencial",
+  "status": "PENDING|ATTENDED"
+}
+```
+
+## 🔧 Desenvolvimento
+
+### Estrutura de Pastas
+
+```
+src/
+├── main/java/com/example/projeto_test/
+│   ├── config/
+│   │   ├── CorsConfig.java          # Configuração CORS
+│   │   └── WebConfig.java           # Configuração recursos estáticos
+│   ├── controller/
+│   │   ├── ProductController.java   # API de produtos
+│   │   └── ReciboController.java    # API de recibos
+│   ├── model/
+│   │   ├── Product.java             # Entidade Produto
+│   │   └── Recibo.java              # Entidade Recibo
+│   ├── repository/
+│   │   ├── ProductRepository.java   # Repository JPA
+│   │   └── ReciboRepository.java    # Repository JPA
+│   └── service/
+│       ├── ProductService.java      # Lógica produtos
+│       └── ReciboService.java       # Lógica recibos
+└── main/resources/
+    ├── static/                      # Frontend
+    │   ├── cliente.html            # Interface cliente
+    │   ├── funcionario.html        # Painel funcionário
+    │   ├── recibos.html            # Sistema pedidos
+    │   └── test-*.html            # Páginas de teste
+    ├── data.sql                     # Dados iniciais
+    └── application.properties       # Configurações
+```
+
+### Configurações Importantes
+
+#### application.properties
+```properties
+# Porta do servidor
+server.port=8081
+
+# Banco H2 em memória
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+# JPA/Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# H2 Console (para desenvolvimento)
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+
+# Dados iniciais
+spring.sql.init.mode=always
+spring.sql.init.data-locations=classpath:data.sql
+```
+
+## 🧪 Testes e Debugging
+
+### Páginas de Teste Disponíveis
+
+1. **`test-complete-system.html`** - Teste completo de todas as funcionalidades
+2. **`test-cliente-minimal.html`** - Teste simplificado do cliente
+3. **`test-api-direct.html`** - Teste direto da API
+4. **`test-notifications.html`** - Teste do sistema de notificações
+
+### Console do H2 Database
+- **URL**: http://localhost:8081/h2-console
+- **JDBC URL**: `jdbc:h2:mem:testdb`
+- **Username**: `sa`
+- **Password**: *(vazio)*
+
+### Logs de Debug
+- **Backend**: Logs detalhados no console do Spring Boot
+- **Frontend**: `console.log()` em todas as operações importantes
+- **API**: Headers de requisição/resposta logados
 
 ---
 
@@ -1230,6 +1417,46 @@ feat: implementa sistema completo de recibos
 #### **🏗️ Infraestrutura**
 - [ ] **Docker** para containerização
 - [ ] **Kubernetes** para orquestração
+
+---
+
+## 🎯 **RESUMO EXECUTIVO - SISTEMA SENHOR LEÃO**
+
+### **Sistema Completo e Funcional** ✅
+
+O **Sistema de Gestão de Restaurante - Senhor Leão** foi **completamente desenvolvido e está 100% funcional**!
+
+#### **Funcionalidades Implementadas:**
+- ✅ **Interface Cliente** (`cliente.html`) - Pedidos self-service
+- ✅ **Painel Funcionário** (`funcionario.html`) - Gestão administrativa
+- ✅ **Sistema Recibos** (`recibos.html`) - Gestão completa de pedidos
+- ✅ **API REST** completa com CORS configurado
+- ✅ **Banco H2** com dados pré-carregados
+- ✅ **Sistema de Notificações** em tempo real
+- ✅ **Interface Responsiva** para mobile e desktop
+
+#### **Como Executar:**
+```bash
+# Clone o projeto
+git clone <url-do-repositorio>
+cd sistema-leao
+
+# Execute
+.\mvnw spring-boot:run
+
+# Acesse:
+# Cliente: http://localhost:8081/cliente.html
+# Funcionário: http://localhost:8081/funcionario.html
+# Recibos: http://localhost:8081/recibos.html
+```
+
+#### **Arquitetura Moderna:**
+- **Backend**: Spring Boot 3.5.8 com Java 22
+- **Frontend**: HTML5 + CSS3 + JavaScript ES6+
+- **Banco**: H2 Database (em memória)
+- **API**: RESTful com documentação completa
+
+**🚀 SISTEMA PRONTO PARA USO IMEDIATO!**
 - [ ] **CI/CD Pipeline** (GitHub Actions)
 - [ ] **Deploy Cloud** (AWS/Heroku/Vercel)
 

@@ -583,19 +583,34 @@
 
         // Load products from API
         async function loadProducts() {
+            // ↑ Função assíncrona para carregar produtos da API
+            //   async permite usar await dentro da função
             console.log('🔄 Iniciando carregamento de produtos da API:', API_BASE);
+            // ↑ Log para debug mostrando qual API está sendo chamada
             console.log('🌐 URL completa construída:', API_BASE);
+            // ↑ Mostra a URL final que será usada
             setProductsState('loading');
+            // ↑ Muda o estado da interface para "carregando"
+            //   Mostra spinner e esconde produtos
 
             try {
+                // ↑ Bloco try-catch para tratar erros da requisição
                 console.log('📤 Fazendo requisição fetch...');
+                // ↑ Log indicando que vai fazer a requisição HTTP
                 const fetchUrl = API_BASE;
+                // ↑ Define a URL para fazer a requisição
                 console.log('🔗 URL de fetch:', fetchUrl);
+                // ↑ Log da URL final
 
                 const response = await fetch(fetchUrl, {
+                    // ↑ Faz requisição HTTP assíncrona usando fetch API
+                    //   await espera a resposta chegar
                     method: 'GET',
+                    // ↑ Método HTTP GET para buscar dados
                     headers: {
+                        // ↑ Cabeçalhos da requisição
                         'Accept': 'application/json'
+                        // ↑ Informa que aceita resposta em formato JSON
                     }
                 });
 

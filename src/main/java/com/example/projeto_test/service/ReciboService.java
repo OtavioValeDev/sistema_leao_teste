@@ -1,13 +1,22 @@
 package com.example.projeto_test.service;
+// ↑ Declara que este arquivo pertence ao pacote de serviços
+//   Serviços contêm a lógica de negócio da aplicação
 
 import com.example.projeto_test.model.Recibo;
+// ↑ Importa a entidade Recibo (representa um pedido/notinha)
 import com.example.projeto_test.model.Recibo.ItemCompra;
+// ↑ Importa a classe interna ItemCompra (itens dentro de um recibo)
 import com.example.projeto_test.repository.ReciboRepository;
+// ↑ Importa o repository para acesso aos dados de recibos
 import org.springframework.beans.factory.annotation.Autowired;
+// ↑ Anotação para injeção automática de dependências
 import org.springframework.lang.NonNull;
+// ↑ Anotação que indica parâmetros obrigatórios (não null)
 import org.springframework.stereotype.Service;
+// ↑ Marca esta classe como um serviço do Spring
 
 import java.util.List;
+// ↑ Importa interface List para trabalhar com coleções
 
 /**
  * Serviço de negócio para operações com recibos.
@@ -16,15 +25,25 @@ import java.util.List;
  * incluindo geração de números aleatórios, cálculos de total e validações.
  * Atua como intermediário entre o controller e o repository.
  *
+ * Funcionalidades principais:
+ * - Criação de recibos com números únicos
+ * - Validação de carrinhos vazios
+ * - Cálculo automático de totais
+ * - Geração de números de chamada aleatórios
+ *
  * @author Sistema de Gestão de Restaurante
  * @version 1.0
  * @since 2025-01-01
  */
-@Service
+@Service // ← Anotação que registra esta classe como um serviço Spring
+//   - Instâncias desta classe são gerenciadas pelo Spring
+//   - Pode ser injetada em outras classes (@Autowired)
 public class ReciboService {
 
-    @Autowired
+    @Autowired // ← Injeção automática do repository
+    //   Spring encontra automaticamente uma instância de ReciboRepository
     private ReciboRepository reciboRepository;
+    // ↑ Campo que armazena referência ao repository de recibos
 
     /**
      * Cria um novo recibo com itens de compra.
@@ -56,15 +75,29 @@ public class ReciboService {
      * @throws IllegalArgumentException Se o carrinho estiver vazio
      */
     public Recibo createRecibo(List<ItemCompra> itens, String observacoes, String formaPagamento, String tipoAtendimento) {
+        // ↑ Método principal que cria um novo recibo
+        //   Recebe todos os dados necessários para gerar um pedido
+
         if (itens == null || itens.isEmpty()) {
+            // ↑ Verifica se a lista de itens é nula ou vazia
             if (!"PREFERENCIAL".equals(tipoAtendimento)) {
+                // ↑ Se não é atendimento preferencial, exige itens no carrinho
                 throw new IllegalArgumentException("Carrinho não pode estar vazio");
+                // ↑ Lança exceção se carrinho estiver vazio para pedidos normais
             }
+            // Se é preferencial, permite carrinho vazio (apenas observações)
         }
 
         Recibo recibo = new Recibo();
+        // ↑ Cria uma nova instância da entidade Recibo
+
         recibo.gerarRecibo(itens, observacoes, formaPagamento, tipoAtendimento);
+        // ↑ Chama o método da entidade para preencher todos os dados
+        //   Este método gera o número aleatório e calcula o total
+
         return reciboRepository.save(recibo);
+        // ↑ Salva o recibo no banco de dados e retorna
+        //   O save() retorna a entidade salva (com ID gerado)
     }
 
     /**

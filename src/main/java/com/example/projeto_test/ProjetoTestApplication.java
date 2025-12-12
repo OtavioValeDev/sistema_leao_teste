@@ -1,7 +1,18 @@
 package com.example.projeto_test;
+// ↑ Declara que esta classe pertence ao pacote principal do projeto
+//   Este pacote contém toda a aplicação Spring Boot
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+// ↑ Importa a classe SpringApplication do Spring Boot
+//   Responsável por inicializar toda a aplicação Spring
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Bean;
+// ↑ Imports adicionais para funcionalidades específicas
 
 /**
  * Classe principal da aplicação Spring Boot.
@@ -20,7 +31,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @version 1.0
  * @since 2025-01-01
  */
-@SpringBootApplication
+@SpringBootApplication // ← Anotação que configura automaticamente a aplicação Spring Boot
+//   - Habilita auto-configuração
+//   - Escaneia componentes (@Controller, @Service, @Repository)
+//   - Configura banco de dados
+//   - Inicializa servidor web
 public class ProjetoTestApplication {
 
 	/**
@@ -36,6 +51,21 @@ public class ProjetoTestApplication {
 	 * @param args Argumentos da linha de comando (não utilizados)
 	 */
 	public static void main(String[] args) {
+		// ↑ Método principal executado quando a aplicação inicia
+		//   É o ponto de entrada padrão de qualquer aplicação Java
 		SpringApplication.run(ProjetoTestApplication.class, args);
+		// ↑ Linha crítica: inicializa toda a aplicação Spring Boot
+		//   - Primeiro parâmetro: classe principal da aplicação
+		//   - Segundo parâmetro: argumentos da linha de comando
+		//   Esta linha faz toda a "mágica" do Spring Boot acontecer
+	}
+
+	/**
+	 * Configuração adicional para CORS e endpoints de debug
+	 */
+	@Configuration // ← Indica que esta classe contém configurações
+	static class AdditionalConfig implements WebMvcConfigurer {
+		// Classe interna para configurações adicionais
+		// Permite customizar aspectos específicos da aplicação
 	}
 }
