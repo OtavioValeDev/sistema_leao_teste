@@ -432,7 +432,7 @@
     <script>
 
       
-      const API_BASE = '/products';
+      const API_BASE = window.location.protocol + '//' + window.location.host + '/api/products';
       let currentProducts = [];
 
       // Initialize application
@@ -557,6 +557,7 @@
                 }
 
                 const newProduct = await response.json();
+                console.log('✅ Produto criado:', newProduct);
                 showMessage(`✅ Produto "${newProduct.name}" adicionado com sucesso!`, 'success');
 
                 // Clear form
@@ -695,7 +696,7 @@
             const container = document.getElementById('notificationsContainer');
 
             try {
-                const response = await fetch('/products/notificacoes-pendentes');
+                const response = await fetch(API_BASE + '/notificacoes-pendentes');
                 if (!response.ok) {
                     throw new Error('Erro ao carregar notificações');
                 }
@@ -744,7 +745,7 @@
 
         async function attendNotification(notificationId) {
             try {
-                const response = await fetch(`/products/notificacao/${notificationId}/atender`, {
+                const response = await fetch(`${API_BASE}/notificacao/${notificationId}/atender`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

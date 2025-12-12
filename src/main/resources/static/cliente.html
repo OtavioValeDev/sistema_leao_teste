@@ -105,39 +105,6 @@
           box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       }
 
-      /* Product details expansion */
-      .product-details {
-          display: none;
-          margin-top: 15px;
-            padding: 15px;
-          background: #f8f9fa;
-            border-radius: 8px;
-          border: 1px solid #dee2e6;
-      }
-      .product-details.show {
-          display: block;
-          animation: slideDown 0.3s ease;
-      }
-      .expand-button {
-          background: #3498db;
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 6px;
-          cursor: pointer;
-            font-size: 0.9em;
-          margin-top: 10px;
-          transition: background 0.3s;
-      }
-      .expand-button:hover {
-          background: #2980b9;
-      }
-      .expand-button.expanded {
-            background: #e74c3c;
-        }
-      .expand-button.expanded:hover {
-            background: #c0392b;
-        }
 
       /* Receipt modal styles */
         .receipt-modal {
@@ -191,21 +158,6 @@
           box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
-        /* Animations */
-      @keyframes slideDown {
-          from {
-              opacity: 0;
-              max-height: 0;
-              padding-top: 0;
-              padding-bottom: 0;
-          }
-          to {
-              opacity: 1;
-              max-height: 500px;
-              padding-top: 15px;
-              padding-bottom: 15px;
-          }
-        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -226,20 +178,50 @@
                     <!-- Products Section -->
                     <section class="lg:w-3/4">
                         <div class="controls mb-6">
-                            <div class="search flex items-center gap-2 p-4 rounded-xl bg-orange-50 border-2 border-orange-100">
-                                <i data-feather="search" class="text-orange-600"></i>
-                                <input id="searchInput" class="w-full bg-transparent outline-none text-gray-700" placeholder="Pesquisar (ex: hambúrguer, batata)" aria-label="Pesquisar produtos">
+                            <div class="flex gap-2 mb-4">
+                                <div class="search flex items-center gap-2 p-4 rounded-xl bg-orange-50 border-2 border-orange-100 flex-1">
+                                    <i data-feather="search" class="text-orange-600"></i>
+                                    <input id="searchInput" class="w-full bg-transparent outline-none text-gray-700" placeholder="Pesquisar (ex: hambúrguer, batata)" aria-label="Pesquisar produtos">
+                                </div>
+                                <button id="refreshProductsBtn" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl font-medium transition duration-200 flex items-center gap-2">
+                                    <i data-feather="refresh-cw" class="w-4 h-4"></i>
+                                    <span>Atualizar</span>
+                                </button>
                             </div>
-                            <div class="categories flex gap-2 mt-4 overflow-auto py-2">
+                            <div class="categories flex gap-2 overflow-auto py-2">
                                 <!-- Categories will be populated by JS -->
                             </div>
                         </div>
                         <h2 class="text-2xl font-bold mb-6 text-gray-800">🍽️ Escolha seus Produtos</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="products-grid">
-                            <!-- Products will be loaded here -->
-                            <div class="text-center py-12 text-gray-500">
+                        <div id="productsContainer">
+                            <!-- Products loading state -->
+                            <div class="text-center py-12 text-gray-500" id="productsLoadingState">
                                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
                                 Carregando produtos...
+                            </div>
+
+                            <!-- Products grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden" id="productsGrid">
+                                <!-- Products will be loaded here -->
+                            </div>
+
+                            <!-- Error state -->
+                            <div class="hidden text-center py-12" id="productsErrorState">
+                                <div class="text-red-500 mb-4">
+                                    <i data-feather="alert-circle" class="w-16 h-16 mx-auto mb-4"></i>
+                                    <h3 class="text-xl font-bold mb-2">Erro ao carregar produtos</h3>
+                                    <p class="mb-4">Não foi possível carregar o cardápio.</p>
+                                    <button onclick="retryLoadProducts()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium transition duration-200">
+                                        Tentar Novamente
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Empty state -->
+                            <div class="hidden text-center py-12 text-gray-500" id="productsEmptyState">
+                                <i data-feather="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                                <h3 class="text-xl font-bold mb-2">Nenhum produto disponível</h3>
+                                <p>O cardápio está vazio no momento.</p>
                             </div>
                         </div>
                     </section>
@@ -496,43 +478,7 @@
                 font-size: 0.9rem;
               }
             </style>
-            <footer>
-              <div class="footer-container">
-                <div class="footer-section">
-                  <h3>Sistema de Gestão - Senhor Leão</h3>
-                  <p>Servindo os melhores pratos da cidade desde 2024. Ingredientes de qualidade, sabor incrível.</p>
-                </div>
-                <div class="footer-section">
-                  <h3>Links Rápidos</h3>
-                  <ul>
-                    <li><a href="#">Início</a></li>
-                    <li><a href="#">Cardápio</a></li>
-                    <li><a href="#">Sobre Nós</a></li>
-                    <li><a href="#">Contato</a></li>
-                  </ul>
-                </div>
-                <div class="footer-section">
-                  <h3>Contato</h3>
-                  <ul>
-                    <li>Rua dos Sabores, 123</li>
-                    <li>Sua Cidade, SC 12345</li>
-                    <li>Telefone: (47) 98765-4321</li>
-                    <li>Email: contato@senhorleao.com</li>
-                  </ul>
-                </div>
-                <div class="footer-section">
-                  <h3>Siga-nos</h3>
-                  <div class="social-icons">
-                    <a href="#"><i data-feather="facebook"></i></a>
-                    <a href="#"><i data-feather="instagram"></i></a>
-                    <a href="#"><i data-feather="twitter"></i></a>
-                  </div>
-                </div>
-              </div>
-              <div class="copyright">
-                &copy; 2024 Sistema de Gestão - Senhor Leão. Todos os direitos reservados.
-              </div>
-            </footer>
+            
           `;
         }
       }
@@ -542,279 +488,9 @@
         let availableProducts = [];
         let cart = [];
         // Use absolute URLs to avoid routing conflicts with static files
-        const API_BASE = window.location.protocol + '//' + window.location.host + '/products';
+        const API_BASE = window.location.protocol + '//' + window.location.host + '/api/products';
         const RECIBOS_API = window.location.protocol + '//' + window.location.host + '/recibos';
 
-      // Product details database
-      const productDetails = {
-            // Lanches
-            1: { // X-Burger
-                description: "Hambúrguer artesanal de 180g com molho especial da casa, alface crocante, tomate maduro, cebola roxa e picles.",
-                ingredients: ["Pão brioche", "Hambúrguer 180g", "Queijo cheddar", "Alface", "Tomate", "Cebola", "Picles", "Molho especial"],
-                nutrition: { calories: 650, protein: 35, carbs: 45, fat: 32 },
-                preparation: "Grelhado na chapa, montado fresco"
-            },
-            2: { // X-Salada
-                description: "Versão leve do clássico hambúrguer, com vegetais frescos e molho light.",
-                ingredients: ["Pão integral", "Hambúrguer 150g", "Alface", "Tomate", "Cebola", "Pepino", "Molho light"],
-                nutrition: { calories: 480, protein: 28, carbs: 38, fat: 18 },
-                preparation: "Grelhado na chapa, opção saudável"
-            },
-            3: { // X-Bacon
-                description: "Delicioso hambúrguer com tiras crocantes de bacon defumado e queijo derretido.",
-                ingredients: ["Pão brioche", "Hambúrguer 180g", "Queijo cheddar", "Bacon crocante", "Alface", "Tomate", "Molho barbecue"],
-                nutrition: { calories: 780, protein: 42, carbs: 48, fat: 45 },
-                preparation: "Grelhado com bacon crocante"
-            },
-            4: { // Frango Grelhado
-                description: "Peito de frango grelhado temperado com ervas finas, leve e saudável.",
-                ingredients: ["Peito de frango 200g", "Pão brioche", "Alface", "Tomate", "Molho de iogurte", "Ervas finas"],
-                nutrition: { calories: 420, protein: 38, carbs: 35, fat: 12 },
-                preparation: "Grelhado lentamente, suculento"
-            },
-            5: { // Sanduíche Natural
-                description: "Sanduíche saudável com peito de peru, queijo branco e vegetais frescos.",
-                ingredients: ["Pão integral", "Peito de peru", "Queijo branco", "Alface", "Tomate", "Cenoura", "Molho de mostarda"],
-                nutrition: { calories: 380, protein: 32, carbs: 42, fat: 8 },
-                preparation: "Montado fresco, opção saudável"
-            },
-
-            // Especiais Rápidos
-            6: { // Cachorro-Quente Tradicional
-                description: "Cachorro-quente completo com todos os acompanhamentos tradicionais.",
-                ingredients: ["Pão de hot dog", "Salsicha especial", "Purê de batatas", "Batata palha", "Milho verde", "Ervilha", "Molhos variados"],
-                nutrition: { calories: 580, protein: 18, carbs: 65, fat: 28 },
-                preparation: "Salsicha grelhada, acompanhamentos frescos"
-            },
-            7: { // Cachorro-Quente Duplo
-                description: "Porção dupla do nosso cachorro-quente tradicional.",
-                ingredients: ["2 pães de hot dog", "2 salsichas especiais", "Purê de batatas", "Batata palha", "Milho verde", "Ervilha", "Molhos variados"],
-                nutrition: { calories: 920, protein: 32, carbs: 110, fat: 48 },
-                preparation: "Duas salsichas grelhadas, porção generosa"
-            },
-
-            // Porções
-            8: { // Batata Frita Pequena
-                description: "Porção pequena de batatas fritas crocantes com sal marinho.",
-                ingredients: ["Batatas selecionadas", "Óleo vegetal", "Sal marinho"],
-                nutrition: { calories: 320, protein: 4, carbs: 42, fat: 16 },
-                preparation: "Fritas duas vezes para máxima crocância"
-            },
-            9: { // Batata Frita Média
-                description: "Porção média de batatas fritas crocantes com sal marinho.",
-                ingredients: ["Batatas selecionadas", "Óleo vegetal", "Sal marinho"],
-                nutrition: { calories: 480, protein: 6, carbs: 64, fat: 24 },
-                preparation: "Fritas duas vezes para máxima crocância"
-            },
-            10: { // Batata Frita Grande
-                description: "Porção grande de batatas fritas crocantes com sal marinho.",
-                ingredients: ["Batatas selecionadas", "Óleo vegetal", "Sal marinho"],
-                nutrition: { calories: 640, protein: 8, carbs: 86, fat: 32 },
-                preparation: "Fritas duas vezes para máxima crocância"
-            },
-            11: { // Batata com Cheddar e Bacon
-                description: "Batatas fritas cobertas com queijo cheddar derretido e bacon crocante.",
-                ingredients: ["Batatas fritas", "Queijo cheddar", "Bacon crocante", "Creme de leite"],
-                nutrition: { calories: 780, protein: 24, carbs: 45, fat: 52 },
-                preparation: "Batatas fritas, cobertas com queijo e bacon"
-            },
-            12: { // Onion Rings
-                description: "Anéis de cebola empanados e fritos, crocantes por fora e macios por dentro.",
-                ingredients: ["Cebola fresca", "Farinha de trigo", "Ovos", "Óleo vegetal", "Temperos"],
-                nutrition: { calories: 380, protein: 8, carbs: 42, fat: 22 },
-                preparation: "Empanados e fritos até dourar"
-            },
-            13: { // Frango Empanado Crocante
-                description: "Tiras de frango empanadas e fritas, servidas com molho especial.",
-                ingredients: ["Peito de frango", "Farinha de trigo", "Ovos", "Farinha de rosca", "Temperos", "Óleo vegetal"],
-                nutrition: { calories: 520, protein: 35, carbs: 38, fat: 28 },
-                preparation: "Empanado e frito até ficar crocante"
-            },
-
-            // Pratos Feitos
-            14: { // PF de Frango
-                description: "Prato feito completo com frango grelhado, acompanhamentos e salada fresca.",
-                ingredients: ["Frango grelhado", "Arroz branco", "Feijão carioca", "Salada de alface e tomate", "Farofa de mandioca"],
-                nutrition: { calories: 620, protein: 42, carbs: 78, fat: 18 },
-                preparation: "Frango grelhado, acompanhamentos caseiros"
-            },
-            15: { // PF de Bife Acebolado
-                description: "Prato feito com bife acebolado suculento e acompanhamentos tradicionais.",
-                ingredients: ["Bife de contra-filé", "Cebola", "Arroz branco", "Feijão carioca", "Salada mista", "Farofa"],
-                nutrition: { calories: 680, protein: 45, carbs: 72, fat: 24 },
-                preparation: "Bife acebolado, acompanhamentos frescos"
-            },
-            16: { // PF de Carne Moída
-                description: "Carne moída refogada com temperos especiais, acompanhamentos completos.",
-                ingredients: ["Carne moída", "Cebola", "Tomate", "Arroz branco", "Feijão carioca", "Salada"],
-                nutrition: { calories: 580, protein: 38, carbs: 68, fat: 20 },
-                preparation: "Carne refogada lentamente, acompanhamentos"
-            },
-            17: { // PF de Omelete
-                description: "Omelete recheado com queijo e presunto, acompanhamentos completos.",
-                ingredients: ["Ovos", "Queijo", "Presunto", "Arroz branco", "Feijão carioca", "Salada"],
-                nutrition: { calories: 520, protein: 32, carbs: 55, fat: 22 },
-                preparation: "Omelete recheado, acompanhamentos frescos"
-            },
-
-            // Pratos Especiais
-            18: { // Parmegiana de Frango
-                description: "Frango empanado com molho de tomate, queijo gratinado, arroz e batata frita.",
-                ingredients: ["Peito de frango", "Molho de tomate", "Queijo mussarela", "Arroz branco", "Batata frita"],
-                nutrition: { calories: 850, protein: 48, carbs: 72, fat: 38 },
-                preparation: "Empanado, gratinado, acompanhamentos"
-            },
-            19: { // Parmegiana de Carne
-                description: "Carne empanada com molho de tomate, queijo gratinado, arroz e batata frita.",
-                ingredients: ["Carne bovina", "Molho de tomate", "Queijo mussarela", "Arroz branco", "Batata frita"],
-                nutrition: { calories: 920, protein: 52, carbs: 68, fat: 45 },
-                preparation: "Empanado, gratinado, acompanhamentos"
-            },
-            20: { // Macarronada
-                description: "Macarrão ao molho especial, escolha entre molho ao sugo ou bolonhesa.",
-                ingredients: ["Macarrão", "Molho de tomate", "Carne moída", "Queijo parmesão", "Manjericão"],
-                nutrition: { calories: 680, protein: 28, carbs: 85, fat: 22 },
-                preparation: "Molho caseiro, macarrão al dente"
-            },
-            21: { // Estrogonofe de Frango
-                description: "Frango ao molho cremoso com champignon, arroz branco e batata palha.",
-                ingredients: ["Frango", "Creme de leite", "Champignon", "Arroz branco", "Batata palha"],
-                nutrition: { calories: 720, protein: 42, carbs: 65, fat: 32 },
-                preparation: "Molho cremoso, acompanhamentos tradicionais"
-            },
-            22: { // Estrogonofe de Carne
-                description: "Carne ao molho cremoso com champignon, arroz branco e batata palha.",
-                ingredients: ["Carne bovina", "Creme de leite", "Champignon", "Arroz branco", "Batata palha"],
-                nutrition: { calories: 780, protein: 45, carbs: 62, fat: 38 },
-                preparation: "Molho cremoso, acompanhamentos tradicionais"
-            },
-
-            // Saladas
-            23: { // Salada Completa
-                description: "Salada completa com alface, tomate, cenoura, frango desfiado e molho da casa.",
-                ingredients: ["Alface", "Tomate", "Cenoura", "Frango desfiado", "Molho da casa", "Azeite"],
-                nutrition: { calories: 320, protein: 28, carbs: 18, fat: 16 },
-                preparation: "Ingredientes frescos, montada na hora"
-            },
-            24: { // Salada Caesar
-                description: "Salada Caesar com frango, queijo parmesão, croutons e molho cremoso.",
-                ingredients: ["Alface romana", "Frango grelhado", "Queijo parmesão", "Croutons", "Molho caesar"],
-                nutrition: { calories: 380, protein: 32, carbs: 15, fat: 22 },
-                preparation: "Alface fresca, molho artesanal"
-            },
-
-            // Salgados
-            25: { // Coxinha de Frango
-                description: "Coxinha recheada com frango e catupiry, empanada e frita.",
-                ingredients: ["Massa de mandioca", "Frango desfiado", "Catupiry", "Farinha de trigo", "Ovos"],
-                nutrition: { calories: 180, protein: 8, carbs: 22, fat: 8 },
-                preparation: "Recheada e empanada artesanalmente"
-            },
-            26: { // Risoles de Presunto e Queijo
-                description: "Risoles recheados com presunto e queijo, empanados e fritos.",
-                ingredients: ["Massa folhada", "Presunto", "Queijo", "Ovos", "Farinha de rosca"],
-                nutrition: { calories: 160, protein: 7, carbs: 18, fat: 7 },
-                preparation: "Recheados e empanados"
-            },
-            27: { // Risoles de Carne
-                description: "Risoles recheados com carne moída temperada.",
-                ingredients: ["Massa folhada", "Carne moída", "Cebola", "Ovos", "Temperos"],
-                nutrition: { calories: 170, protein: 9, carbs: 16, fat: 8 },
-                preparation: "Carne temperada, empanados"
-            },
-            28: { // Enroladinho de Salsicha
-                description: "Massa folhada recheada com salsicha, assada até dourar.",
-                ingredients: ["Massa folhada", "Salsicha", "Mostarda", "Ovos"],
-                nutrition: { calories: 140, protein: 6, carbs: 12, fat: 8 },
-                preparation: "Assados até ficarem dourados"
-            },
-            29: { // Empada de Frango
-                description: "Empada recheada com frango temperado, massa crocante.",
-                ingredients: ["Massa de empada", "Frango", "Cebola", "Milho", "Azeitona"],
-                nutrition: { calories: 220, protein: 10, carbs: 24, fat: 10 },
-                preparation: "Recheio caseiro, massa crocante"
-            },
-            30: { // Empada de Palmito
-                description: "Empada recheada com palmito, opção vegetariana.",
-                ingredients: ["Massa de empada", "Palmito", "Cebola", "Milho", "Azeitona"],
-                nutrition: { calories: 200, protein: 6, carbs: 26, fat: 9 },
-                preparation: "Opção vegetariana, recheio fresco"
-            },
-            31: { // Empada de Camarão
-                description: "Empada recheada com camarão, especialidade da casa.",
-                ingredients: ["Massa de empada", "Camarão", "Cebola", "Milho", "Azeitona", "Creme de leite"],
-                nutrition: { calories: 240, protein: 12, carbs: 22, fat: 12 },
-                preparation: "Camarão fresco, recheio especial"
-            },
-            32: { // Quibe Frito
-                description: "Quibe frito com carne moída e temperos especiais.",
-                ingredients: ["Trigo para quibe", "Carne moída", "Cebola", "Hortelã", "Óleo vegetal"],
-                nutrition: { calories: 190, protein: 8, carbs: 18, fat: 10 },
-                preparation: "Fritos até ficarem crocantes"
-            },
-            33: { // Pastel Assado
-                description: "Pastel assado com recheio variado, opção mais saudável.",
-                ingredients: ["Massa de pastel", "Recheio variado", "Ovos"],
-                nutrition: { calories: 160, protein: 6, carbs: 20, fat: 6 },
-                preparation: "Assados, opção mais saudável"
-            },
-            34: { // Pastel Frito de Carne
-                description: "Pastel frito recheado com carne moída.",
-                ingredients: ["Massa de pastel", "Carne moída", "Cebola", "Ovos"],
-                nutrition: { calories: 180, protein: 8, carbs: 18, fat: 8 },
-                preparation: "Fritos, recheio suculento"
-            },
-            35: { // Pastel Frito de Queijo
-                description: "Pastel frito recheado com queijo derretido.",
-                ingredients: ["Massa de pastel", "Queijo", "Ovos"],
-                nutrition: { calories: 170, protein: 7, carbs: 16, fat: 9 },
-                preparation: "Queijo derretido, crocante"
-            },
-            36: { // Pastel Frito de Pizza
-                description: "Pastel frito com recheio de pizza.",
-                ingredients: ["Massa de pastel", "Molho de tomate", "Queijo", "Oregano"],
-                nutrition: { calories: 175, protein: 7, carbs: 17, fat: 8 },
-                preparation: "Sabor de pizza, frito"
-            },
-            37: { // Pastel Frito de Frango
-                description: "Pastel frito recheado com frango desfiado.",
-                ingredients: ["Massa de pastel", "Frango", "Cebola", "Ovos"],
-                nutrition: { calories: 185, protein: 9, carbs: 19, fat: 7 },
-                preparation: "Frango suculento, crocante"
-            },
-
-            // Bebidas
-            38: { // Refrigerante Lata
-                description: "Refrigerante em lata de 350ml, gelado e refrescante.",
-                ingredients: ["Refrigerante", "Gelo"],
-                nutrition: { calories: 140, protein: 0, carbs: 38, fat: 0 },
-                preparation: "Servido gelado"
-            },
-            39: { // Refrigerante 600ml
-                description: "Refrigerante em garrafa de 600ml, porção perfeita para compartilhar.",
-                ingredients: ["Refrigerante", "Gelo"],
-                nutrition: { calories: 240, protein: 0, carbs: 65, fat: 0 },
-                preparation: "Servido gelado"
-            },
-            40: { // Suco Natural
-                description: "Suco natural feito na hora com frutas frescas da estação.",
-                ingredients: ["Frutas frescas", "Água", "Açúcar (opcional)"],
-                nutrition: { calories: 120, protein: 2, carbs: 28, fat: 1 },
-                preparation: "Feito na hora, frutas frescas"
-            },
-            41: { // Água
-                description: "Água mineral sem gás, fresca e pura.",
-                ingredients: ["Água mineral"],
-                nutrition: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-                preparation: "Servida fresca"
-            },
-            42: { // Chá Gelado
-                description: "Chá gelado refrescante, preparado artesanalmente.",
-                ingredients: ["Chá", "Açúcar", "Limão", "Gelo"],
-                nutrition: { calories: 80, protein: 0, carbs: 20, fat: 0 },
-                preparation: "Preparado artesanalmente"
-            }
-        };
 
       // Initialize the app when DOM is loaded
       document.addEventListener('DOMContentLoaded', () => {
@@ -827,55 +503,238 @@
         }
       });
 
-      function init() {
-          console.log('🔧 Inicializando componentes...');
+      async function init() {
+          console.log('🚀 Iniciando aplicação cliente...');
+
           try {
-            renderProducts();
+            console.log('🎨 Renderizando componentes básicos...');
             renderCategories();
             renderCart();
             setupEventListeners();
             setupSearch();
-            loadProducts(); // Load products from API
-            console.log('✅ Inicialização completa');
+
+            console.log('📦 Carregando produtos...');
+            await loadProducts();
+
+            console.log('✅ Inicialização concluída com sucesso!');
           } catch (error) {
-            console.error('❌ Erro no init:', error);
+            console.error('❌ Erro na inicialização:', error);
+            alert('Erro ao inicializar a aplicação: ' + error.message);
           }
       }
+
 
         function setupEventListeners() {
             document.getElementById('checkout-btn').addEventListener('click', showOrderConfirmation);
             document.getElementById('preferentialButton').addEventListener('click', requestPreferentialService);
+            document.getElementById('refreshProductsBtn').addEventListener('click', refreshProducts);
+        }
+
+        // Product loading state management
+        function setProductsState(state) {
+            console.log('🎭 Mudando estado dos produtos para:', state);
+
+            const loadingState = document.getElementById('productsLoadingState');
+            const grid = document.getElementById('productsGrid');
+            const errorState = document.getElementById('productsErrorState');
+            const emptyState = document.getElementById('productsEmptyState');
+
+            console.log('📍 Elementos encontrados:', {
+                loadingState: !!loadingState,
+                grid: !!grid,
+                errorState: !!errorState,
+                emptyState: !!emptyState
+            });
+
+            // Hide all states first
+            [loadingState, grid, errorState, emptyState].forEach(el => {
+                if (el) el.classList.add('hidden');
+            });
+
+            // Show the requested state
+            switch (state) {
+                case 'loading':
+                    if (loadingState) loadingState.classList.remove('hidden');
+                    console.log('✅ Estado loading ativado');
+                    break;
+                case 'loaded':
+                    if (grid) grid.classList.remove('hidden');
+                    console.log('✅ Estado loaded ativado');
+                    break;
+                case 'error':
+                    if (errorState) errorState.classList.remove('hidden');
+                    console.log('✅ Estado error ativado');
+                    break;
+                case 'empty':
+                    if (emptyState) emptyState.classList.remove('hidden');
+                    console.log('✅ Estado empty ativado');
+                    break;
+                default:
+                    console.warn('⚠️ Estado desconhecido:', state);
+            }
+
+            feather.replace();
+        }
+
+        // Retry loading products
+        function retryLoadProducts() {
+            loadProducts();
         }
 
         // Load products from API
         async function loadProducts() {
             console.log('🔄 Iniciando carregamento de produtos da API:', API_BASE);
+            console.log('🌐 URL completa construída:', API_BASE);
+            setProductsState('loading');
+
             try {
-                const response = await fetch(API_BASE);
-                console.log('📡 Resposta da API:', response.status, response.ok);
+                console.log('📤 Fazendo requisição fetch...');
+                const fetchUrl = API_BASE;
+                console.log('🔗 URL de fetch:', fetchUrl);
+
+                const response = await fetch(fetchUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                console.log('📡 Resposta da API recebida:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok,
+                    url: response.url,
+                    headers: Object.fromEntries(response.headers.entries())
+                });
 
                 if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
+                    const errorText = await response.text();
+                    console.error('❌ Resposta de erro:', errorText);
+                    console.error('❌ Headers de erro:', Object.fromEntries(response.headers.entries()));
+                    throw new Error(`Erro HTTP ${response.status}: ${response.statusText} - ${errorText}`);
                 }
 
-                availableProducts = await response.json();
-                console.log('✅ Produtos carregados:', availableProducts.length, 'itens');
-                console.log('📋 Produtos:', availableProducts);
+                const responseText = await response.text();
+                console.log('📄 Texto da resposta:', responseText.substring(0, 500) + (responseText.length > 500 ? '...' : ''));
 
-                renderProducts();
+                try {
+                    availableProducts = JSON.parse(responseText);
+                    console.log('✅ JSON parseado com sucesso. Produtos carregados:', availableProducts.length, 'itens');
+                } catch (parseError) {
+                    console.error('❌ Erro ao fazer parse JSON:', parseError);
+                    console.error('❌ Conteúdo que falhou no parse:', responseText);
+                    throw parseError;
+                }
+
+                // Debug: mostrar produtos no console do navegador
+                if (availableProducts.length > 0) {
+                    console.log('🔍 Primeiro produto:', availableProducts[0]);
+                    console.log('🔍 Último produto:', availableProducts[availableProducts.length - 1]);
+                } else {
+                    console.log('⚠️ Nenhum produto encontrado na resposta');
+                }
+
+                if (availableProducts.length === 0) {
+                    console.log('📭 Definindo estado empty');
+                    setProductsState('empty');
+                } else {
+                    console.log('🎨 Renderizando produtos e definindo estado loaded');
+                    renderProducts();
+                    setProductsState('loaded');
+                }
+
             } catch (error) {
                 console.error('❌ Erro ao carregar produtos:', error);
-                document.getElementById('productsGrid').innerHTML =
-                    '<div style="text-align: center; color: #e74c3c; padding: 20px;">Erro ao carregar produtos: ' + error.message + '</div>';
+                console.error('❌ Stack trace:', error.stack);
+
+                // Try fallback method
+                console.log('🔄 Tentando método alternativo...');
+                const fallbackSuccess = await loadProductsFallback();
+
+                if (!fallbackSuccess) {
+                    console.log('❌ Fallback também falhou, definindo estado error');
+                    setProductsState('error');
+                }
+            }
+        }
+
+        // Refresh products manually
+        async function refreshProducts() {
+            const btn = document.getElementById('refreshProductsBtn');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-feather="refresh-cw" class="w-4 h-4 animate-spin"></i><span>Carregando...</span>';
+            feather.replace();
+
+            try {
+                await loadProducts();
+                // Temporarily show success state
+                btn.innerHTML = '<i data-feather="check" class="w-4 h-4"></i><span>Atualizado!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    feather.replace();
+                }, 1500);
+            } catch (error) {
+                console.error('❌ Erro no refresh manual:', error);
+                btn.innerHTML = '<i data-feather="x" class="w-4 h-4"></i><span>Erro</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    feather.replace();
+                }, 2000);
+            }
+        }
+
+        // Alternative product loading method (fallback)
+        async function loadProductsFallback() {
+            console.log('🔄 Tentando carregamento alternativo de produtos...');
+
+            try {
+                // Try the cors-test endpoint which has more permissive headers
+                const response = await fetch(API_BASE + '/cors-test', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const products = await response.json();
+                console.log('✅ Produtos carregados via fallback:', products.length, 'itens');
+
+                availableProducts = products;
+                if (products.length === 0) {
+                    setProductsState('empty');
+                } else {
+                    renderProducts();
+                    setProductsState('loaded');
+                }
+                return true;
+
+            } catch (error) {
+                console.error('❌ Fallback também falhou:', error);
+                return false;
             }
         }
 
       function renderProducts(filteredProducts = availableProducts) {
           console.log('🎨 Renderizando produtos:', filteredProducts.length, 'itens');
-          const productsGrid = document.getElementById('products-grid');
+          console.log('📋 Produtos a renderizar:', filteredProducts);
+
+          const productsGrid = document.getElementById('productsGrid');
 
           if (!productsGrid) {
-              console.error('❌ Elemento products-grid não encontrado!');
+              console.error('❌ Elemento productsGrid não encontrado!');
+              console.error('❌ Elementos disponíveis:', {
+                  productsGrid: document.getElementById('productsGrid'),
+                  productsLoadingState: document.getElementById('productsLoadingState'),
+                  productsErrorState: document.getElementById('productsErrorState'),
+                  productsEmptyState: document.getElementById('productsEmptyState')
+              });
               return;
           }
 
@@ -883,58 +742,33 @@
 
           if (filteredProducts.length === 0) {
               console.log('📭 Nenhum produto para renderizar');
-              productsGrid.innerHTML = '<div class="text-center py-8 text-gray-500">Nenhum produto encontrado.</div>';
-                return;
-            }
+              productsGrid.innerHTML = '<div class="text-center py-8 text-gray-500">Nenhum produto encontrado na busca.</div>';
+              return;
+          }
 
           filteredProducts.forEach(product => {
-              console.log('🍔 Renderizando produto:', product.id, product.name, product.priceInCents);
-              const details = productDetails[product.id] || {
-                  description: "Produto delicioso da nossa lanchonete.",
-                  ingredients: ["Ingredientes selecionados"],
-                  nutrition: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-                  preparation: "Preparado com cuidado"
-              };
-
               const productCard = document.createElement('div');
-              productCard.className = 'product-card bg-white rounded-xl p-3 shadow-md border-2 border-transparent hover:border-orange-100 transition-all cursor-pointer';
+              productCard.className = 'product-card bg-white rounded-xl p-4 shadow-md border-2 border-transparent hover:border-orange-100 transition-all';
+
+              const priceFormatted = (product.priceInCents / 100).toFixed(2).replace('.', ',');
+
               productCard.innerHTML = `
-                  <img src="${product.image || 'https://via.placeholder.com/200x150/FF6B00/FFFFFF?text=' + encodeURIComponent(product.name)}" alt="${product.name}" class="w-full h-40 object-cover rounded-lg mb-3">
-                  <div class="p-1">
-                      <h3 class="font-bold text-base mb-1">${product.name}</h3>
-                      <p class="text-gray-500 text-sm mb-2">${details.description}</p>
-                      <div class="flex justify-between items-center mb-2">
-                          <span class="text-orange-600 font-bold">R$${(product.priceInCents / 100).toFixed(2).replace('.', ',')}</span>
-                          <button onclick="addToCart(${product.id})" class="bg-orange-600 hover:bg-orange-700 text-white py-1 px-3 rounded-lg text-sm transition duration-200">
+                  <div class="w-full h-48 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg mb-3 flex items-center justify-center">
+                      <span class="text-4xl">🍽️</span>
+                  </div>
+                  <div>
+                      <h3 class="font-bold text-lg mb-2 text-gray-800">${product.name}</h3>
+                      <p class="text-gray-600 text-sm mb-3">Delicioso prato do nosso cardápio</p>
+                      <div class="flex justify-between items-center">
+                          <span class="text-orange-600 font-bold text-lg">R$ ${priceFormatted}</span>
+                          <button onclick="addToCart(${product.id})"
+                                  class="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
                               Adicionar
                           </button>
-                    </div>
-                      <button type="button" class="expand-button" onclick="event.stopPropagation(); toggleProductDetails(${product.id})" id="expand-${product.id}">
-                          📖 Ver Detalhes
-                      </button>
-
-                      <div class="product-details" id="details-${product.id}">
-                          <h4 class="font-bold text-sm mb-2 text-gray-800">📋 Descrição</h4>
-                          <p class="text-gray-600 text-sm mb-3">${details.description}</p>
-
-                          <h4 class="font-bold text-sm mb-2 text-gray-800">🥘 Ingredientes</h4>
-                          <p class="text-gray-600 text-sm mb-3">${details.ingredients.join(", ")}</p>
-
-                          <h4 class="font-bold text-sm mb-2 text-gray-800">⏲️ Preparo</h4>
-                          <p class="text-gray-600 text-sm mb-3">${details.preparation}</p>
-
-                          <div class="nutrition-info bg-white p-3 rounded border">
-                              <h4 class="font-bold text-sm mb-2 text-gray-800">📊 Informações Nutricionais</h4>
-                              <div class="grid grid-cols-2 gap-2 text-xs">
-                                  <div><strong>Calorias:</strong> ${details.nutrition.calories}kcal</div>
-                                  <div><strong>Proteína:</strong> ${details.nutrition.protein}g</div>
-                                  <div><strong>Carboidratos:</strong> ${details.nutrition.carbs}g</div>
-                                  <div><strong>Gordura:</strong> ${details.nutrition.fat}g</div>
-                </div>
-                          </div>
                       </div>
                   </div>
               `;
+
               productsGrid.appendChild(productCard);
           });
       }
@@ -1037,7 +871,7 @@
                 });
             }
             renderCart();
-            showNotification(`${product.name} adicionado ao carrinho!`);
+            console.log(`${product.name} adicionado ao carrinho!`);
         }
 
         function renderCart() {
@@ -1093,14 +927,32 @@
             updateOrderButton();
         }
 
-        function updateCartTotal() {
-            const total = cart.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-            document.getElementById('totalAmount').textContent = (total / 100).toFixed(2);
+        function updateTotals() {
+            // Calculate subtotal
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Calculate tax (10%)
+            const tax = subtotal * 0.1;
+
+            // Calculate total
+            const total = subtotal + tax;
+
+            // Format currency function
+            const formatCurrency = (value) => {
+                return (value / 100).toFixed(2).replace('.', ',');
+            };
+
+            // Update DOM elements
+            document.getElementById('subtotal').textContent = 'R$' + formatCurrency(subtotal);
+            document.getElementById('tax').textContent = 'R$' + formatCurrency(tax);
+            document.getElementById('total').textContent = 'R$' + formatCurrency(total);
         }
 
         function updateOrderButton() {
-            const button = document.getElementById('orderButton');
-            button.disabled = cart.length === 0;
+            const button = document.getElementById('checkout-btn');
+            if (button) {
+                button.disabled = cart.length === 0;
+            }
         }
 
         function showOrderConfirmation() {
@@ -1254,21 +1106,6 @@
             document.getElementById('receiptModal').style.display = 'none';
         }
 
-        // Product details expansion
-        function toggleProductDetails(productId) {
-            const detailsDiv = document.getElementById(`details-${productId}`);
-            const expandBtn = document.getElementById(`expand-${productId}`);
-
-            if (detailsDiv.classList.contains('show')) {
-                detailsDiv.classList.remove('show');
-                expandBtn.textContent = '📖 Ver Detalhes';
-                expandBtn.classList.remove('expanded');
-            } else {
-                detailsDiv.classList.add('show');
-                expandBtn.textContent = '🔽 Ocultar Detalhes';
-                expandBtn.classList.add('expanded');
-            }
-        }
 
         // Preferential service - envia notificação direta para funcionário
         async function requestPreferentialService() {
@@ -1279,7 +1116,7 @@
 
             try {
                 // Envia notificação simples sem pedir observações
-                const response = await fetch('/products/notificacao-preferencial', {
+                const response = await fetch(API_BASE + '/notificacao-preferencial', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

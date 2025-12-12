@@ -20,7 +20,7 @@ import java.util.List;
  * @since 2025-01-01
  */
 @RestController
-@RequestMapping("/recibos")
+@RequestMapping("/api/recibos")
 public class ReciboController {
 
     private final ReciboService reciboService;
@@ -69,9 +69,17 @@ public class ReciboController {
     public ResponseEntity<Recibo> pagar(@RequestBody PagamentoRequest req) {
         try {
             Recibo recibo = reciboService.createRecibo(req.itens(), req.observacoes(), req.formaPagamento());
-            return ResponseEntity.status(HttpStatus.CREATED).body(recibo);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .body(recibo);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
         }
     }
 
@@ -93,9 +101,17 @@ public class ReciboController {
                 "ATENDIMENTO_PREFERENCIAL",
                 "PREFERENCIAL"
             );
-            return ResponseEntity.status(HttpStatus.CREATED).body(recibo);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .body(recibo);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
         }
     }
 
@@ -107,7 +123,11 @@ public class ReciboController {
     @GetMapping
     public ResponseEntity<List<Recibo>> listar() {
         List<Recibo> recibos = reciboService.getAllRecibos();
-        return ResponseEntity.ok(recibos);
+        return ResponseEntity.ok()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                .header("Access-Control-Allow-Headers", "*")
+                .body(recibos);
     }
 
     /**
@@ -120,9 +140,17 @@ public class ReciboController {
     public ResponseEntity<Recibo> buscarPorId(@PathVariable @NonNull Long id) {
         try {
             Recibo recibo = reciboService.getReciboById(id);
-            return ResponseEntity.ok(recibo);
+            return ResponseEntity.ok()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .body(recibo);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
         }
     }
 
@@ -139,9 +167,17 @@ public class ReciboController {
     public ResponseEntity<Recibo> buscarPorNumeroChamada(@PathVariable String numero) {
         try {
             Recibo recibo = reciboService.getReciboByNumeroChamada(numero);
-            return ResponseEntity.ok(recibo);
+            return ResponseEntity.ok()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .body(recibo);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
         }
     }
 
@@ -155,6 +191,10 @@ public class ReciboController {
     @DeleteMapping("/limpar")
     public ResponseEntity<String> limpar() {
         reciboService.deleteAllRecibos();
-        return ResponseEntity.ok("Recibos deletados com sucesso.");
+        return ResponseEntity.ok()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                .header("Access-Control-Allow-Headers", "*")
+                .body("Recibos deletados com sucesso.");
     }
 }

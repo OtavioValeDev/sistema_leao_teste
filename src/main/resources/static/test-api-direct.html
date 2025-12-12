@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste API Direto</title>
+</head>
+<body>
+    <h1>Teste API Direto</h1>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testando API...<br>';
+
+            try {
+                const response = await fetch('/api/products');
+                result.innerHTML += 'Status: ' + response.status + '<br>';
+
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML += 'Sucesso! Recebidos ' + data.length + ' produtos<br>';
+                    result.innerHTML += '<pre>' + JSON.stringify(data.slice(0, 3), null, 2) + '</pre>';
+                } else {
+                    const error = await response.text();
+                    result.innerHTML += 'Erro: ' + error + '<br>';
+                }
+            } catch (error) {
+                result.innerHTML += 'Erro de rede: ' + error.message + '<br>';
+            }
+        }
+
+        window.onload = testAPI;
+    </script>
+</body>
+</html>

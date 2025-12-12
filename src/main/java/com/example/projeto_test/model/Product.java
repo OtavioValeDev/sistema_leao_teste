@@ -1,5 +1,6 @@
 package com.example.projeto_test.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -24,6 +25,7 @@ public class Product {
     /** Identificador único do produto no banco de dados */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
     private Long id;
 
     /**
@@ -32,6 +34,7 @@ public class Product {
      */
     @NotBlank(message = "Name is required")
     @Column(nullable = false, length = 100)
+    @JsonProperty("name")
     private String name;
 
     /**
@@ -41,6 +44,7 @@ public class Product {
      */
     @Positive(message = "Price must be positive")
     @Column(nullable = false)
+    @JsonProperty("priceInCents")
     private Integer priceInCents;
 
     /** Construtor padrão necessário para JPA */
