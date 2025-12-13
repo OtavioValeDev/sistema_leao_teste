@@ -197,4 +197,18 @@ public class ReciboController {
                 .header("Access-Control-Allow-Headers", "*")
                 .body("Recibos deletados com sucesso.");
     }
+
+    /**
+     * Endpoint para lidar com requisições OPTIONS (preflight CORS).
+     *
+     * @return Resposta vazia com headers CORS
+     */
+    @RequestMapping(method = RequestMethod.OPTIONS)
+    public ResponseEntity<Void> handleOptions() {
+        return ResponseEntity.ok()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                .header("Access-Control-Allow-Headers", "*")
+                .build();
+    }
 }

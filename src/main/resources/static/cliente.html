@@ -235,16 +235,12 @@
                             </div>
                             <div id="cart-items" class="mb-4">
                                 <!-- Cart items will appear here -->
-                                <p class="text-gray-500 italic" id="empty-cart-message">Seu carrinho está vazio</p>
                             </div>
+                            <p class="text-gray-500 italic" id="empty-cart-message">Seu carrinho está vazio</p>
                             <div class="border-t border-gray-200 pt-4">
-                                <div class="flex justify-between items-center mb-2">
+                                <div class="flex justify-between items-center mb-4">
                                     <span class="font-medium">Subtotal:</span>
                                     <span class="font-bold" id="subtotal">R$0,00</span>
-                                </div>
-                                <div class="flex justify-between items-center mb-4">
-                                    <span class="font-medium">Tax (10%):</span>
-                                    <span class="font-bold" id="tax">R$0,00</span>
                                 </div>
                                 <div class="flex justify-between items-center text-lg font-bold mb-6">
                                     <span>Total:</span>
@@ -324,6 +320,62 @@
     </div>
 
     <script>
+      // ============================================================================
+      // SISTEMA DE LOGGING MINIMALISTA
+      // ============================================================================
+      const Logger = {
+        enabled: true, // Desative para produção
+        
+        log: function(message, data = null) {
+          if (!this.enabled) return;
+          if (data) {
+            console.log(`%c[INFO] ${message}`, 'color: #3b82f6; font-weight: bold', data);
+          } else {
+            console.log(`%c[INFO] ${message}`, 'color: #3b82f6; font-weight: bold');
+          }
+        },
+        
+        success: function(message, data = null) {
+          if (!this.enabled) return;
+          if (data) {
+            console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold', data);
+          } else {
+            console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold');
+          }
+        },
+        
+        error: function(message, error = null) {
+          if (!this.enabled) return;
+          if (error) {
+            console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold', error);
+          } else {
+            console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold');
+          }
+        },
+        
+        warn: function(message, data = null) {
+          if (!this.enabled) return;
+          if (data) {
+            console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold', data);
+          } else {
+            console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold');
+          }
+        },
+        
+        group: function(title) {
+          if (!this.enabled) return;
+          console.group(`%c${title}`, 'color: #6366f1; font-weight: bold');
+        },
+        
+        groupEnd: function() {
+          if (!this.enabled) return;
+          console.groupEnd();
+        }
+      };
+
+      // ============================================================================
+      // COMPONENTES
+      // ============================================================================
       // Inlined navbar component
       class CustomNavbar extends HTMLElement {
         connectedCallback() {
@@ -489,37 +541,33 @@
         let cart = [];
         // Use absolute URLs to avoid routing conflicts with static files
         const API_BASE = window.location.protocol + '//' + window.location.host + '/api/products';
-        const RECIBOS_API = window.location.protocol + '//' + window.location.host + '/recibos';
+        const RECIBOS_API = window.location.protocol + '//' + window.location.host + '/api/recibos';
 
 
       // Initialize the app when DOM is loaded
       document.addEventListener('DOMContentLoaded', () => {
-        console.log('🚀 DOM carregado, inicializando app...');
         try {
           feather.replace();
           init();
         } catch (error) {
-          console.error('❌ Erro na inicialização:', error);
+          Logger.error('Falha na inicialização', error);
         }
       });
 
       async function init() {
-          console.log('🚀 Iniciando aplicação cliente...');
-
+          Logger.group('Inicialização');
           try {
-            console.log('🎨 Renderizando componentes básicos...');
             renderCategories();
             renderCart();
             setupEventListeners();
             setupSearch();
-
-            console.log('📦 Carregando produtos...');
             await loadProducts();
-
-            console.log('✅ Inicialização concluída com sucesso!');
+            Logger.success('Aplicação inicializada');
           } catch (error) {
-            console.error('❌ Erro na inicialização:', error);
+            Logger.error('Erro na inicialização', error);
             alert('Erro ao inicializar a aplicação: ' + error.message);
+          } finally {
+            Logger.groupEnd();
           }
       }
 
@@ -532,19 +580,10 @@
 
         // Product loading state management
         function setProductsState(state) {
-            console.log('🎭 Mudando estado dos produtos para:', state);
-
             const loadingState = document.getElementById('productsLoadingState');
             const grid = document.getElementById('productsGrid');
             const errorState = document.getElementById('productsErrorState');
             const emptyState = document.getElementById('productsEmptyState');
-
-            console.log('📍 Elementos encontrados:', {
-                loadingState: !!loadingState,
-                grid: !!grid,
-                errorState: !!errorState,
-                emptyState: !!emptyState
-            });
 
             // Hide all states first
             [loadingState, grid, errorState, emptyState].forEach(el => {
@@ -555,22 +594,20 @@
             switch (state) {
                 case 'loading':
                     if (loadingState) loadingState.classList.remove('hidden');
-                    console.log('✅ Estado loading ativado');
                     break;
                 case 'loaded':
                     if (grid) grid.classList.remove('hidden');
-                    console.log('✅ Estado loaded ativado');
                     break;
                 case 'error':
                     if (errorState) errorState.classList.remove('hidden');
-                    console.log('✅ Estado error ativado');
+                    Logger.error('Erro ao carregar produtos');
                     break;
                 case 'empty':
                     if (emptyState) emptyState.classList.remove('hidden');
-                    console.log('✅ Estado empty ativado');
+                    Logger.warn('Nenhum produto disponível');
                     break;
                 default:
-                    console.warn('⚠️ Estado desconhecido:', state);
+                    Logger.warn(`Estado desconhecido: ${state}`);
             }
 
             feather.replace();
@@ -583,93 +620,40 @@
 
         // Load products from API
         async function loadProducts() {
-            // ↑ Função assíncrona para carregar produtos da API
-            //   async permite usar await dentro da função
-            console.log('🔄 Iniciando carregamento de produtos da API:', API_BASE);
-            // ↑ Log para debug mostrando qual API está sendo chamada
-            console.log('🌐 URL completa construída:', API_BASE);
-            // ↑ Mostra a URL final que será usada
             setProductsState('loading');
-            // ↑ Muda o estado da interface para "carregando"
-            //   Mostra spinner e esconde produtos
+            Logger.group('Carregando produtos');
 
             try {
-                // ↑ Bloco try-catch para tratar erros da requisição
-                console.log('📤 Fazendo requisição fetch...');
-                // ↑ Log indicando que vai fazer a requisição HTTP
-                const fetchUrl = API_BASE;
-                // ↑ Define a URL para fazer a requisição
-                console.log('🔗 URL de fetch:', fetchUrl);
-                // ↑ Log da URL final
-
-                const response = await fetch(fetchUrl, {
-                    // ↑ Faz requisição HTTP assíncrona usando fetch API
-                    //   await espera a resposta chegar
+                const response = await fetch(API_BASE, {
                     method: 'GET',
-                    // ↑ Método HTTP GET para buscar dados
-                    headers: {
-                        // ↑ Cabeçalhos da requisição
-                        'Accept': 'application/json'
-                        // ↑ Informa que aceita resposta em formato JSON
-                    }
-                });
-
-                console.log('📡 Resposta da API recebida:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    ok: response.ok,
-                    url: response.url,
-                    headers: Object.fromEntries(response.headers.entries())
+                    headers: { 'Accept': 'application/json' }
                 });
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('❌ Resposta de erro:', errorText);
-                    console.error('❌ Headers de erro:', Object.fromEntries(response.headers.entries()));
-                    throw new Error(`Erro HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
 
                 const responseText = await response.text();
-                console.log('📄 Texto da resposta:', responseText.substring(0, 500) + (responseText.length > 500 ? '...' : ''));
-
-                try {
-                    availableProducts = JSON.parse(responseText);
-                    console.log('✅ JSON parseado com sucesso. Produtos carregados:', availableProducts.length, 'itens');
-                } catch (parseError) {
-                    console.error('❌ Erro ao fazer parse JSON:', parseError);
-                    console.error('❌ Conteúdo que falhou no parse:', responseText);
-                    throw parseError;
-                }
-
-                // Debug: mostrar produtos no console do navegador
-                if (availableProducts.length > 0) {
-                    console.log('🔍 Primeiro produto:', availableProducts[0]);
-                    console.log('🔍 Último produto:', availableProducts[availableProducts.length - 1]);
-                } else {
-                    console.log('⚠️ Nenhum produto encontrado na resposta');
-                }
+                availableProducts = JSON.parse(responseText);
+                
+                Logger.success(`${availableProducts.length} produto(s) carregado(s)`);
 
                 if (availableProducts.length === 0) {
-                    console.log('📭 Definindo estado empty');
                     setProductsState('empty');
                 } else {
-                    console.log('🎨 Renderizando produtos e definindo estado loaded');
                     renderProducts();
                     setProductsState('loaded');
                 }
 
             } catch (error) {
-                console.error('❌ Erro ao carregar produtos:', error);
-                console.error('❌ Stack trace:', error.stack);
-
-                // Try fallback method
-                console.log('🔄 Tentando método alternativo...');
+                Logger.error('Falha ao carregar produtos', error);
                 const fallbackSuccess = await loadProductsFallback();
-
                 if (!fallbackSuccess) {
-                    console.log('❌ Fallback também falhou, definindo estado error');
                     setProductsState('error');
                 }
+            } finally {
+                Logger.groupEnd();
             }
         }
 
@@ -691,7 +675,7 @@
                     feather.replace();
                 }, 1500);
             } catch (error) {
-                console.error('❌ Erro no refresh manual:', error);
+                Logger.error('Erro ao atualizar produtos', error);
                 btn.innerHTML = '<i data-feather="x" class="w-4 h-4"></i><span>Erro</span>';
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
@@ -703,60 +687,42 @@
 
         // Alternative product loading method (fallback)
         async function loadProductsFallback() {
-            console.log('🔄 Tentando carregamento alternativo de produtos...');
-
+            Logger.warn('Tentando método alternativo');
             try {
-                // Try the cors-test endpoint which has more permissive headers
                 const response = await fetch(API_BASE + '/cors-test', {
                     method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-                const products = await response.json();
-                console.log('✅ Produtos carregados via fallback:', products.length, 'itens');
-
-                availableProducts = products;
-                if (products.length === 0) {
+                availableProducts = await response.json();
+                Logger.success(`Fallback: ${availableProducts.length} produto(s) carregado(s)`);
+                
+                if (availableProducts.length === 0) {
                     setProductsState('empty');
                 } else {
                     renderProducts();
                     setProductsState('loaded');
                 }
                 return true;
-
             } catch (error) {
-                console.error('❌ Fallback também falhou:', error);
+                Logger.error('Fallback falhou', error);
                 return false;
             }
         }
 
       function renderProducts(filteredProducts = availableProducts) {
-          console.log('🎨 Renderizando produtos:', filteredProducts.length, 'itens');
-          console.log('📋 Produtos a renderizar:', filteredProducts);
-
           const productsGrid = document.getElementById('productsGrid');
 
           if (!productsGrid) {
-              console.error('❌ Elemento productsGrid não encontrado!');
-              console.error('❌ Elementos disponíveis:', {
-                  productsGrid: document.getElementById('productsGrid'),
-                  productsLoadingState: document.getElementById('productsLoadingState'),
-                  productsErrorState: document.getElementById('productsErrorState'),
-                  productsEmptyState: document.getElementById('productsEmptyState')
-              });
+              Logger.error('Elemento productsGrid não encontrado');
               return;
           }
 
           productsGrid.innerHTML = '';
 
           if (filteredProducts.length === 0) {
-              console.log('📭 Nenhum produto para renderizar');
               productsGrid.innerHTML = '<div class="text-center py-8 text-gray-500">Nenhum produto encontrado na busca.</div>';
               return;
           }
@@ -764,6 +730,7 @@
           filteredProducts.forEach(product => {
               const productCard = document.createElement('div');
               productCard.className = 'product-card bg-white rounded-xl p-4 shadow-md border-2 border-transparent hover:border-orange-100 transition-all';
+              productCard.setAttribute('data-product-id', product.id);
 
               const priceFormatted = (product.priceInCents / 100).toFixed(2).replace('.', ',');
 
@@ -776,13 +743,21 @@
                       <p class="text-gray-600 text-sm mb-3">Delicioso prato do nosso cardápio</p>
                       <div class="flex justify-between items-center">
                           <span class="text-orange-600 font-bold text-lg">R$ ${priceFormatted}</span>
-                          <button onclick="addToCart(${product.id})"
-                                  class="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
+                          <button class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg font-medium transition duration-200"
+                                  data-product-id="${product.id}">
                               Adicionar
                           </button>
                       </div>
                   </div>
               `;
+
+              // Add event listener to the button
+              const addButton = productCard.querySelector('.add-to-cart-btn');
+              addButton.addEventListener('click', function() {
+                  const productId = this.getAttribute('data-product-id');
+                  console.log('🔘 Botão clicado, ID do produto:', productId);
+                  addToCart(productId);
+              });
 
               productsGrid.appendChild(productCard);
           });
@@ -871,12 +846,18 @@
             }
         }
 
-        function addToCart(productId) {
-            const product = availableProducts.find(p => p.id === productId);
-            if (!product) return;
-            const existingItem = cart.find(item => item.productId === productId);
+        // Make addToCart globally accessible
+        window.addToCart = function(productId) {
+            const product = availableProducts.find(p => p.id == productId || p.id === Number(productId));
+            if (!product) {
+                Logger.error(`Produto não encontrado (ID: ${productId})`);
+                return;
+            }
+            
+            const existingItem = cart.find(item => item.productId == productId || item.productId === Number(productId));
             if (existingItem) {
                 existingItem.quantity += 1;
+                Logger.log(`Quantidade atualizada: ${product.name} (${existingItem.quantity})`);
             } else {
                 cart.push({
                     productId: product.id,
@@ -884,22 +865,40 @@
                     price: product.priceInCents,
                     quantity: 1
                 });
+                Logger.success(`Adicionado: ${product.name}`);
             }
             renderCart();
-            console.log(`${product.name} adicionado ao carrinho!`);
         }
 
         function renderCart() {
             const cartItems = document.getElementById('cart-items');
             const emptyCartMessage = document.getElementById('empty-cart-message');
             const checkoutBtn = document.getElementById('checkout-btn');
+            
+            if (!cartItems) {
+                Logger.error('Elemento cart-items não encontrado');
+                return;
+            }
+            
+            // Limpar apenas os itens do carrinho, não a mensagem vazia
             cartItems.innerHTML = '';
+            
             if (cart.length === 0) {
-                emptyCartMessage.classList.remove('hidden');
-                checkoutBtn.disabled = true;
+                // Mostrar mensagem de carrinho vazio
+                if (emptyCartMessage) {
+                    emptyCartMessage.classList.remove('hidden');
+                }
+                if (checkoutBtn) {
+                    checkoutBtn.disabled = true;
+                }
             } else {
-                emptyCartMessage.classList.add('hidden');
-                checkoutBtn.disabled = false;
+                // Esconder mensagem de carrinho vazio
+                if (emptyCartMessage) {
+                    emptyCartMessage.classList.add('hidden');
+                }
+                if (checkoutBtn) {
+                    checkoutBtn.disabled = false;
+                }
                 cart.forEach(item => {
                     const cartItem = document.createElement('div');
                     cartItem.className = 'cart-item mb-3 pb-3 border-b border-gray-200';
@@ -908,23 +907,52 @@
                             <div>
                                 <h4 class="font-medium">${item.name}</h4>
                                 <div class="flex items-center mt-1">
-                                    <button onclick="updateQuantity(${item.productId}, ${item.quantity - 1})" class="text-gray-500 hover:text-gray-700 text-sm">
+                                    <button class="decrease-qty-btn text-gray-500 hover:text-gray-700 text-sm" data-product-id="${item.productId}">
                                         <i data-feather="minus" class="w-4 h-4"></i>
                                     </button>
-                                    <span class="mx-2">${item.quantity}</span>
-                                    <button onclick="updateQuantity(${item.productId}, ${item.quantity + 1})" class="text-gray-500 hover:text-gray-700 text-sm">
+                                    <span class="mx-2 item-quantity" data-product-id="${item.productId}">${item.quantity}</span>
+                                    <button class="increase-qty-btn text-gray-500 hover:text-gray-700 text-sm" data-product-id="${item.productId}">
                                         <i data-feather="plus" class="w-4 h-4"></i>
                                     </button>
                                 </div>
                             </div>
                             <div class="text-right">
                                 <span class="block font-medium">R$${((item.price * item.quantity) / 100).toFixed(2).replace('.', ',')}</span>
-                                <button onclick="removeFromCart(${item.productId})" class="text-red-500 hover:text-red-700 text-sm mt-1">
+                                <button class="remove-item-btn text-red-500 hover:text-red-700 text-sm mt-1" data-product-id="${item.productId}">
                                     Remover
                                 </button>
                             </div>
                         </div>
                     `;
+                    
+                    // Add event listeners for cart item buttons
+                    const decreaseBtn = cartItem.querySelector('.decrease-qty-btn');
+                    const increaseBtn = cartItem.querySelector('.increase-qty-btn');
+                    const removeBtn = cartItem.querySelector('.remove-item-btn');
+                    
+                    decreaseBtn.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        const item = cart.find(i => i.productId == productId || i.productId === Number(productId));
+                        if (item && item.quantity > 1) {
+                            updateQuantity(productId, item.quantity - 1);
+                        } else if (item && item.quantity === 1) {
+                            removeFromCart(productId);
+                        }
+                    });
+                    
+                    increaseBtn.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        const item = cart.find(i => i.productId == productId || i.productId === Number(productId));
+                        if (item) {
+                            updateQuantity(productId, item.quantity + 1);
+                        }
+                    });
+                    
+                    removeBtn.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        removeFromCart(productId);
+                    });
+                    
                     cartItems.appendChild(cartItem);
                 });
             }
@@ -936,21 +964,41 @@
             }));
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
+        // Make removeFromCart globally accessible
+        window.removeFromCart = function(productId) {
+            const index = cart.findIndex(item => item.productId == productId || item.productId === Number(productId));
+            if (index !== -1) {
+                const item = cart[index];
+                cart.splice(index, 1);
+                Logger.log(`Removido: ${item.name}`);
+            } else {
+                Logger.warn(`Item não encontrado no carrinho (ID: ${productId})`);
+            }
             renderCart();
             updateOrderButton();
         }
 
+        // Make updateQuantity globally accessible
+        window.updateQuantity = function(productId, newQuantity) {
+            const item = cart.find(item => item.productId == productId || item.productId === Number(productId));
+            if (item) {
+                if (newQuantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    item.quantity = newQuantity;
+                }
+            } else {
+                Logger.warn(`Item não encontrado para atualizar (ID: ${productId})`);
+            }
+            renderCart();
+        }
+
         function updateTotals() {
-            // Calculate subtotal
+            // Calculate subtotal (which is also the total, no tax)
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            // Calculate tax (10%)
-            const tax = subtotal * 0.1;
-
-            // Calculate total
-            const total = subtotal + tax;
+            // Total is the same as subtotal (no tax)
+            const total = subtotal;
 
             // Format currency function
             const formatCurrency = (value) => {
@@ -959,7 +1007,6 @@
 
             // Update DOM elements
             document.getElementById('subtotal').textContent = 'R$' + formatCurrency(subtotal);
-            document.getElementById('tax').textContent = 'R$' + formatCurrency(tax);
             document.getElementById('total').textContent = 'R$' + formatCurrency(total);
         }
 
@@ -988,17 +1035,12 @@
                 `;
             });
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const tax = subtotal * 0.1;
-            const total = subtotal + tax;
+            const total = subtotal; // No tax
             summaryHTML += `</div>
                 <div class="border-t border-gray-200 pt-2">
                     <div class="flex justify-between mb-1">
                         <span>Subtotal:</span>
                         <span>R$${(subtotal / 100).toFixed(2).replace('.', ',')}</span>
-                    </div>
-                    <div class="flex justify-between mb-1">
-                        <span>Taxa (10%):</span>
-                        <span>R$${(tax / 100).toFixed(2).replace('.', ',')}</span>
                     </div>
                     <div class="flex justify-between font-bold mt-2">
                         <span>Total:</span>
@@ -1034,20 +1076,25 @@
                     formaPagamento: "Dinheiro"
                 };
 
-                // Send order to API
+                Logger.group('Processando pedido');
+                Logger.log(`Enviando ${itens.length} item(ns)`);
+
                 const response = await fetch(`${RECIBOS_API}/pagar`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(orderData)
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro na API: ${response.status}`);
+                    const errorText = await response.text().catch(() => 'Erro desconhecido');
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
 
                 const receipt = await response.json();
+                Logger.success(`Pedido criado - Número: ${receipt.numeroChamada}`);
 
                 // Show receipt modal
                 showReceiptModal(receipt);
@@ -1056,9 +1103,11 @@
                 cart = [];
                 renderCart();
                 closeModal();
+                Logger.groupEnd();
 
             } catch (error) {
-                console.error('Erro ao fazer pedido:', error);
+                Logger.error('Falha ao processar pedido', error);
+                Logger.groupEnd();
                 alert('Erro ao processar o pedido. Tente novamente.');
             } finally {
                 checkoutBtn.disabled = false;
@@ -1128,6 +1177,7 @@
             const originalText = button.textContent;
             button.disabled = true;
             button.textContent = '⏳ Solicitando...';
+            Logger.group('Solicitando atendimento preferencial');
 
             try {
                 // Envia notificação simples sem pedir observações
@@ -1139,12 +1189,14 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro na API: ${response.status}`);
+                    const errorText = await response.text().catch(() => 'Erro desconhecido');
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
 
                 const result = await response.json();
 
                 if (result.success) {
+                    Logger.success(`Notificação enviada (ID: ${result.notificationId})`);
                     alert('✅ Solicitação de atendimento preferencial enviada com sucesso!\n\nAguarde ser chamado pelo sistema de som.');
                     button.textContent = '✅ Solicitado!';
                     button.disabled = true; // Desabilita após sucesso
@@ -1153,10 +1205,12 @@
                 }
 
             } catch (error) {
-                console.error('Erro ao solicitar atendimento preferencial:', error);
+                Logger.error('Falha ao solicitar atendimento preferencial', error);
                 alert('❌ Erro ao solicitar atendimento preferencial: ' + error.message);
                 button.disabled = false;
                 button.textContent = originalText;
+            } finally {
+                Logger.groupEnd();
             }
         }
 

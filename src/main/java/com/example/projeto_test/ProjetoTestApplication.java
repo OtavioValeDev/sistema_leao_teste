@@ -5,6 +5,8 @@ package com.example.projeto_test;
 import org.springframework.boot.SpringApplication;
 // ↑ Importa a classe SpringApplication do Spring Boot
 //   Responsável por inicializar toda a aplicação Spring
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+// ↑ Importa a anotação @SpringBootApplication
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;

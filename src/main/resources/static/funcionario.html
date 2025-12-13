@@ -430,8 +430,62 @@
     </div>
 
     <script>
+      // ============================================================================
+      // SISTEMA DE LOGGING MINIMALISTA
+      // ============================================================================
+      const Logger = {
+        enabled: true, // Desative para produção
+        
+        log: function(message, data = null) {
+          if (!this.enabled) return;
+          if (data) {
+            console.log(`%c[INFO] ${message}`, 'color: #3b82f6; font-weight: bold', data);
+          } else {
+            console.log(`%c[INFO] ${message}`, 'color: #3b82f6; font-weight: bold');
+          }
+        },
+        
+        success: function(message, data = null) {
+          if (!this.enabled) return;
+          if (data) {
+            console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold', data);
+          } else {
+            console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold');
+          }
+        },
+        
+        error: function(message, error = null) {
+          if (!this.enabled) return;
+          if (error) {
+            console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold', error);
+          } else {
+            console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold');
+          }
+        },
+        
+        warn: function(message, data = null) {
+          if (!this.enabled) return;
+          if (data) {
+            console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold', data);
+          } else {
+            console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold');
+          }
+        },
+        
+        group: function(title) {
+          if (!this.enabled) return;
+          console.group(`%c${title}`, 'color: #6366f1; font-weight: bold');
+        },
+        
+        groupEnd: function() {
+          if (!this.enabled) return;
+          console.groupEnd();
+        }
+      };
 
-      
+      // ============================================================================
+      // APLICAÇÃO
+      // ============================================================================
       const API_BASE = window.location.protocol + '//' + window.location.host + '/api/products';
       let currentProducts = [];
 
@@ -456,18 +510,22 @@
         async function loadProducts() {
             const container = document.getElementById('productsTableContainer');
             container.innerHTML = '<div class="loading">Carregando produtos...</div>';
+            Logger.group('Carregando produtos');
 
             try {
                 const response = await fetch(API_BASE);
                 if (!response.ok) {
-                    throw new Error('Erro ao carregar produtos');
+                    throw new Error(`HTTP ${response.status}`);
                 }
 
                 currentProducts = await response.json();
+                Logger.success(`${currentProducts.length} produto(s) carregado(s)`);
                 renderProductsTable();
             } catch (error) {
                 container.innerHTML = `<div class="no-products">Erro ao carregar produtos: ${error.message}</div>`;
-                console.error('Erro ao carregar produtos:', error);
+                Logger.error('Falha ao carregar produtos', error);
+            } finally {
+                Logger.groupEnd();
             }
         }
 
@@ -538,6 +596,7 @@
             const originalText = button.textContent;
             button.disabled = true;
             button.textContent = '⏳ Adicionando...';
+            Logger.group('Adicionando produto');
 
             try {
                 const response = await fetch(API_BASE, {
@@ -553,11 +612,11 @@
 
                 if (!response.ok) {
                     const error = await response.text();
-                    throw new Error(`Erro ${response.status}: ${error}`);
+                    throw new Error(`HTTP ${response.status}: ${error}`);
                 }
 
                 const newProduct = await response.json();
-                console.log('✅ Produto criado:', newProduct);
+                Logger.success(`Produto criado: ${newProduct.name}`);
                 showMessage(`✅ Produto "${newProduct.name}" adicionado com sucesso!`, 'success');
 
                 // Clear form
@@ -568,11 +627,12 @@
                 loadProducts();
 
             } catch (error) {
-                console.error('Erro ao adicionar produto:', error);
+                Logger.error('Falha ao adicionar produto', error);
                 showMessage(`❌ Erro ao adicionar produto: ${error.message}`, 'error');
             } finally {
                 button.disabled = false;
                 button.textContent = originalText;
+                Logger.groupEnd();
             }
         }
 
@@ -582,21 +642,25 @@
                 return;
             }
 
+            Logger.group('Excluindo produto');
             try {
                 const response = await fetch(`${API_BASE}/${id}`, {
                     method: 'DELETE'
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro ${response.status}`);
+                    throw new Error(`HTTP ${response.status}`);
                 }
 
+                Logger.success(`Produto excluído: ${name}`);
                 showMessage(`🗑️ Produto "${name}" excluído com sucesso!`, 'success');
                 loadProducts();
 
             } catch (error) {
-                console.error('Erro ao excluir produto:', error);
+                Logger.error('Falha ao excluir produto', error);
                 showMessage(`❌ Erro ao excluir produto: ${error.message}`, 'error');
+            } finally {
+                Logger.groupEnd();
             }
         }
 
@@ -629,6 +693,7 @@
                 return;
             }
 
+            Logger.group('Atualizando produto');
             try {
                 const response = await fetch(`${API_BASE}/${id}`, {
                     method: 'PUT',
@@ -643,18 +708,21 @@
 
                 if (!response.ok) {
                     const error = await response.text();
-                    throw new Error(`Erro ${response.status}: ${error}`);
+                    throw new Error(`HTTP ${response.status}: ${error}`);
                 }
 
                 const updatedProduct = await response.json();
+                Logger.success(`Produto atualizado: ${updatedProduct.name}`);
                 showMessage(`✏️ Produto "${updatedProduct.name}" atualizado com sucesso!`, 'success');
 
                 closeEditModal();
                 loadProducts();
 
             } catch (error) {
-                console.error('Erro ao atualizar produto:', error);
+                Logger.error('Falha ao atualizar produto', error);
                 alert(`Erro ao atualizar produto: ${error.message}`);
+            } finally {
+                Logger.groupEnd();
             }
         }
 
@@ -698,13 +766,14 @@
             try {
                 const response = await fetch(API_BASE + '/notificacoes-pendentes');
                 if (!response.ok) {
-                    throw new Error('Erro ao carregar notificações');
+                    throw new Error(`HTTP ${response.status}`);
                 }
 
                 const notifications = await response.json();
+                Logger.log(`${notifications.length} notificação(ões) pendente(s)`);
                 renderNotifications(notifications);
             } catch (error) {
-                console.error('Erro ao carregar notificações:', error);
+                Logger.error('Falha ao carregar notificações', error);
                 container.innerHTML = '<div class="text-red-600">Erro ao carregar notificações</div>';
             }
         }
@@ -744,6 +813,7 @@
         }
 
         async function attendNotification(notificationId) {
+            Logger.group('Atendendo notificação');
             try {
                 const response = await fetch(`${API_BASE}/notificacao/${notificationId}/atender`, {
                     method: 'POST',
@@ -753,19 +823,22 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erro ao atender notificação');
+                    throw new Error(`HTTP ${response.status}`);
                 }
 
                 const result = await response.json();
                 if (result.success) {
+                    Logger.success('Notificação atendida');
                     alert('✅ Notificação atendida com sucesso!');
                     loadNotifications(); // Recarregar notificações
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
-                console.error('Erro ao atender notificação:', error);
+                Logger.error('Falha ao atender notificação', error);
                 alert('❌ Erro ao atender notificação: ' + error.message);
+            } finally {
+                Logger.groupEnd();
             }
         }
     </script>
