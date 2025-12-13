@@ -323,7 +323,7 @@
             <!-- Header -->
             <div class="text-center">
                 <div class="flex justify-center items-center mb-4">
-                    <span class="text-4xl">⚙️</span>
+                    <img src="/logo.svg" alt="Sr. Leão" class="w-24 h-24" style="max-width: 96px; height: auto;">
                 </div>
                 <h1 class="text-3xl font-bold text-gray-800 mb-2">Painel do Funcionário</h1>
                 <p class="text-gray-600">Gerencie os produtos do cardápio</p>
@@ -350,6 +350,32 @@
                     </div>
                 </div>
 
+                <!-- Filters Management Section -->
+                <div class="bg-white p-8 rounded-2xl shadow-xl">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                        <span class="text-3xl mr-3">🏷️</span>
+                        Gerenciar Filtros
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Novo Filtro</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="newFilterName" placeholder="Ex: Bebidas, Lanches" class="flex-1 border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none transition-colors">
+                                <button onclick="addFilter()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                                    Adicionar
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Filtros Ativos</label>
+                            <div id="filtersList" class="flex flex-wrap gap-2 p-2 bg-gray-50 rounded-lg min-h-[50px]">
+                                <!-- Filters will be loaded here -->
+                                <span class="text-gray-400 text-sm italic p-2">Nenhum filtro cadastrado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Add Product Section -->
                 <div class="bg-white p-8 rounded-2xl shadow-xl">
                     <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
@@ -369,6 +395,22 @@
                             <button id="addProductButton" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg">
                                 ➕ Adicionar Produto
                             </button>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Categorias/Filtros</label>
+                            <div id="productFilterSelection" class="flex flex-wrap gap-3 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                                <span class="text-gray-500 text-sm">Carregando filtros...</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Imagem do Produto</label>
+                            <div class="space-y-3">
+                                <input type="file" id="productImage" accept="image/*" class="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none transition-colors">
+                                <div id="imagePreview" class="hidden mt-2">
+                                    <img id="previewImage" src="" alt="Preview" class="max-w-xs max-h-48 rounded-lg border-2 border-gray-200">
+                                    <button type="button" onclick="clearImagePreview()" class="mt-2 text-red-600 hover:text-red-800 text-sm">Remover imagem</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div id="messageArea" class="mt-4"></div>
@@ -416,9 +458,26 @@
                     <input type="text" id="editProductName" placeholder="Nome do produto">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="editProductPrice">Preço (R$)</label>
                     <input type="number" id="editProductPrice" placeholder="0,00" min="0" step="0.01">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="margin-bottom: 10px; display: block;">Categorias/Filtros</label>
+                    <div id="editProductFilterSelection" class="flex flex-wrap gap-3 p-4 bg-gray-50 rounded-lg border-2 border-gray-200" style="max-height: 200px; overflow-y: auto;">
+                        <span class="text-gray-500 text-sm">Carregando filtros...</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductImage" style="margin-bottom: 10px; display: block;">Imagem do Produto</label>
+                    <input type="file" id="editProductImage" accept="image/*" class="w-full border-2 border-gray-300 rounded-lg px-4 py-2 mb-2">
+                    <div id="editImagePreview" class="hidden mt-2">
+                        <img id="editPreviewImage" src="" alt="Preview" class="max-w-xs max-h-48 rounded-lg border-2 border-gray-200 mb-2">
+                        <button type="button" onclick="clearEditImagePreview()" class="text-red-600 hover:text-red-800 text-sm">Remover imagem</button>
+                    </div>
+                    <div id="editCurrentImage" class="mt-2"></div>
                 </div>
             </div>
 
@@ -487,12 +546,42 @@
       // APLICAÇÃO
       // ============================================================================
       const API_BASE = window.location.protocol + '//' + window.location.host + '/api/products';
+      const API_FILTERS = window.location.protocol + '//' + window.location.host + '/api/filters';
       let currentProducts = [];
+      let currentFilters = [];
+
+      // Image preview functions
+      document.addEventListener('DOMContentLoaded', function() {
+          const imageInput = document.getElementById('productImage');
+          if (imageInput) {
+              imageInput.addEventListener('change', function(e) {
+                  const file = e.target.files[0];
+                  if (file) {
+                      const reader = new FileReader();
+                      reader.onload = function(e) {
+                          const preview = document.getElementById('imagePreview');
+                          const previewImg = document.getElementById('previewImage');
+                          previewImg.src = e.target.result;
+                          preview.classList.remove('hidden');
+                      };
+                      reader.readAsDataURL(file);
+                  }
+              });
+          }
+      });
+
+      window.clearImagePreview = function() {
+          document.getElementById('productImage').value = '';
+          document.getElementById('imagePreview').classList.add('hidden');
+          document.getElementById('previewImage').src = '';
+      }
 
       // Initialize application
       document.addEventListener('DOMContentLoaded', function() {
           feather.replace();
           setupEventListeners();
+          setupEventListeners();
+          loadFilters();
           loadProducts();
           loadNotifications();
           // Atualizar notificações a cada 30 segundos
@@ -529,6 +618,87 @@
             }
         }
 
+        // Load filters
+        async function loadFilters() {
+            try {
+                const response = await fetch(API_FILTERS);
+                if (!response.ok) throw new Error('Falha ao carregar filtros');
+                currentFilters = await response.json();
+                renderFiltersManagement();
+                renderProductFilterSelection();
+            } catch (error) {
+                Logger.error('Erro ao carregar filtros', error);
+            }
+        }
+
+        function renderFiltersManagement() {
+            const container = document.getElementById('filtersList');
+            if (currentFilters.length === 0) {
+                container.innerHTML = '<span class="text-gray-400 text-sm italic p-2">Nenhum filtro cadastrado</span>';
+                return;
+            }
+            container.innerHTML = currentFilters.map(f => `
+                <div class="flex items-center gap-2 bg-white border border-gray-300 rounded-full px-3 py-1 text-sm shadow-sm">
+                    <span class="font-medium text-gray-700">${f.name}</span>
+                    <button onclick="deleteFilter(${f.id}, '${f.name}')" class="text-red-500 hover:text-red-700 transition-colors">
+                        <i data-feather="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `).join('');
+            feather.replace();
+        }
+
+        function renderProductFilterSelection() {
+            const container = document.getElementById('productFilterSelection');
+            if (currentFilters.length === 0) {
+                container.innerHTML = '<span class="text-gray-400 text-sm italic">Crie filtros acima para categorizar o produto.</span>';
+                return;
+            }
+            container.innerHTML = currentFilters.map(f => `
+                <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-2 rounded-lg border border-gray-200 hover:border-blue-400 transition-colors">
+                    <input type="checkbox" name="product-filter" value="${f.id}" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                    <span class="text-gray-700 font-medium">${f.name}</span>
+                </label>
+            `).join('');
+        }
+
+        // Make addFilter globally accessible
+        window.addFilter = async function() {
+            const input = document.getElementById('newFilterName');
+            const name = input.value.trim();
+            if (!name) return;
+
+            try {
+                const response = await fetch(API_FILTERS, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                if (!response.ok) throw new Error('Erro ao criar filtro');
+                
+                input.value = '';
+                showMessage('✅ Filtro criado com sucesso!', 'success');
+                await loadFilters();
+            } catch (error) {
+                Logger.error('Erro ao criar filtro', error);
+                alert('Erro ao criar filtro: ' + error.message);
+            }
+        }
+
+        // Make deleteFilter globally accessible
+        window.deleteFilter = async function(id, name) {
+            if (!confirm(`Excluir filtro "${name}"?`)) return;
+            try {
+                const response = await fetch(`${API_FILTERS}/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Erro ao excluir');
+                showMessage('🗑️ Filtro excluído!', 'success');
+                await loadFilters();
+            } catch (error) {
+                Logger.error('Erro ao excluir filtro', error);
+                alert('Erro: ' + error.message);
+            }
+        }
+
         // Render products table
         function renderProductsTable() {
             const container = document.getElementById('productsTableContainer');
@@ -549,23 +719,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${currentProducts.map(product => `
+                        ${currentProducts.map((product, index) => {
+                            const filtersJson = JSON.stringify(product.filters || []).replace(/"/g, '&quot;');
+                            const productNameEscaped = product.name.replace(/'/g, "\\'");
+                            const imageUrlEscaped = (product.imageUrl || '').replace(/'/g, "\\'");
+                            return `
                             <tr>
                                 <td>${product.id}</td>
                                 <td><span class="product-name">${product.name}</span></td>
                                 <td><span class="product-price">R$ ${(product.priceInCents / 100).toFixed(2)}</span></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="edit-button" onclick="openEditModal(${product.id}, '${product.name}', ${product.priceInCents})">
+                                        <button class="edit-button" onclick="openEditModalWithProduct(${product.id}, '${productNameEscaped}', ${product.priceInCents}, '${filtersJson}', '${imageUrlEscaped}')">
                                             ✏️ Editar
                                         </button>
-                                        <button class="delete-button" onclick="deleteProduct(${product.id}, '${product.name}')">
+                                        <button class="delete-button" onclick="deleteProduct(${product.id}, '${productNameEscaped}')">
                                             🗑️ Excluir
                                         </button>
                                     </div>
                                 </td>
                             </tr>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </tbody>
                 </table>
             `;
@@ -573,10 +748,28 @@
             container.innerHTML = tableHtml;
         }
 
+        // Helper function to open edit modal with product data
+        window.openEditModalWithProduct = function(id, name, priceInCents, filtersJson, imageUrl) {
+            try {
+                const filters = JSON.parse(filtersJson.replace(/&quot;/g, '"'));
+                openEditModal(id, name, priceInCents, filters, imageUrl || null);
+            } catch (e) {
+                Logger.error('Erro ao parsear filtros', e);
+                openEditModal(id, name, priceInCents, [], imageUrl || null);
+            }
+        }
+
+        window.clearEditImagePreview = function() {
+            document.getElementById('editProductImage').value = '';
+            document.getElementById('editImagePreview').classList.add('hidden');
+            document.getElementById('editPreviewImage').src = '';
+        }
+
         // Add new product
         async function addProduct() {
             const name = document.getElementById('productName').value.trim();
             const price = document.getElementById('productPrice').value;
+            const imageFile = document.getElementById('productImage').files[0];
 
             // Clear previous messages
             showMessage('', '');
@@ -598,6 +791,32 @@
             button.textContent = '⏳ Adicionando...';
             Logger.group('Adicionando produto');
 
+            const selectedFilterIds = Array.from(document.querySelectorAll('input[name="product-filter"]:checked'))
+                .map(cb => ({ id: parseInt(cb.value) }));
+
+            let imageUrl = null;
+
+            // Upload image if provided
+            if (imageFile) {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', imageFile);
+                    const uploadResponse = await fetch(window.location.protocol + '//' + window.location.host + '/api/images/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (uploadResponse.ok) {
+                        const uploadResult = await uploadResponse.json();
+                        imageUrl = uploadResult.imageUrl;
+                        Logger.success('Imagem enviada: ' + imageUrl);
+                    } else {
+                        Logger.warn('Erro ao enviar imagem, continuando sem imagem');
+                    }
+                } catch (error) {
+                    Logger.warn('Erro ao enviar imagem: ' + error.message);
+                }
+            }
+
             try {
                 const response = await fetch(API_BASE, {
                     method: 'POST',
@@ -606,7 +825,9 @@
                     },
                     body: JSON.stringify({
                         name: name,
-                        priceInCents: Math.round(parseFloat(price) * 100)
+                        priceInCents: Math.round(parseFloat(price) * 100),
+                        filters: selectedFilterIds,
+                        imageUrl: imageUrl
                     })
                 });
 
@@ -622,6 +843,11 @@
                 // Clear form
                 document.getElementById('productName').value = '';
                 document.getElementById('productPrice').value = '';
+                document.getElementById('productImage').value = '';
+                clearImagePreview();
+                
+                // Clear filter checkboxes
+                document.querySelectorAll('input[name="product-filter"]:checked').forEach(cb => cb.checked = false);
 
                 // Reload products
                 loadProducts();
@@ -665,22 +891,87 @@
         }
 
         // Edit product modal functions
-        function openEditModal(id, name, priceInCents) {
+        function openEditModal(id, name, priceInCents, productFilters, imageUrl) {
             document.getElementById('editProductId').value = id;
             document.getElementById('editProductName').value = name;
             document.getElementById('editProductPrice').value = (priceInCents / 100).toFixed(2);
 
+            // Render filter selection for editing
+            renderEditProductFilterSelection(productFilters || []);
+
+            // Show current image if exists
+            const currentImageDiv = document.getElementById('editCurrentImage');
+            const editImageInput = document.getElementById('editProductImage');
+            editImageInput.value = '';
+            clearEditImagePreview();
+            
+            if (imageUrl) {
+                currentImageDiv.innerHTML = `
+                    <p class="text-sm text-gray-600 mb-2">Imagem atual:</p>
+                    <img src="${imageUrl}" alt="Imagem atual" class="max-w-xs max-h-48 rounded-lg border-2 border-gray-200">
+                `;
+            } else {
+                currentImageDiv.innerHTML = '';
+            }
+
+            // Add event listener for image preview
+            editImageInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('editImagePreview');
+                        const previewImg = document.getElementById('editPreviewImage');
+                        previewImg.src = e.target.result;
+                        preview.classList.remove('hidden');
+                        currentImageDiv.innerHTML = ''; // Hide current image when new one is selected
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
             document.getElementById('editModal').style.display = 'block';
+        }
+
+        function renderEditProductFilterSelection(selectedFilters) {
+            const container = document.getElementById('editProductFilterSelection');
+            if (currentFilters.length === 0) {
+                container.innerHTML = '<span class="text-gray-400 text-sm italic">Crie filtros acima para categorizar o produto.</span>';
+                return;
+            }
+            
+            // Get selected filter IDs
+            const selectedFilterIds = selectedFilters.map(f => f.id || f);
+            
+            container.innerHTML = currentFilters.map(f => {
+                const isChecked = selectedFilterIds.includes(f.id);
+                return `
+                    <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-2 rounded-lg border border-gray-200 hover:border-blue-400 transition-colors ${isChecked ? 'border-blue-500 bg-blue-50' : ''}">
+                        <input type="checkbox" name="edit-product-filter" value="${f.id}" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" ${isChecked ? 'checked' : ''}>
+                        <span class="text-gray-700 font-medium">${f.name}</span>
+                    </label>
+                `;
+            }).join('');
         }
 
         function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
+            // Clear form
+            document.getElementById('editProductId').value = '';
+            document.getElementById('editProductName').value = '';
+            document.getElementById('editProductPrice').value = '';
+            document.getElementById('editProductImage').value = '';
+            document.getElementById('editProductFilterSelection').innerHTML = '';
+            document.getElementById('editCurrentImage').innerHTML = '';
+            clearEditImagePreview();
         }
 
         async function saveProductEdit() {
             const id = document.getElementById('editProductId').value;
             const name = document.getElementById('editProductName').value.trim();
             const price = document.getElementById('editProductPrice').value;
+            const imageFile = document.getElementById('editProductImage').files[0];
+            const currentImageUrl = document.getElementById('editCurrentImage').querySelector('img')?.src || null;
 
             // Validation
             if (!name) {
@@ -693,6 +984,33 @@
                 return;
             }
 
+            // Get selected filters
+            const selectedFilterIds = Array.from(document.querySelectorAll('input[name="edit-product-filter"]:checked'))
+                .map(cb => ({ id: parseInt(cb.value) }));
+
+            let imageUrl = currentImageUrl;
+
+            // Upload new image if provided
+            if (imageFile) {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', imageFile);
+                    const uploadResponse = await fetch(window.location.protocol + '//' + window.location.host + '/api/images/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (uploadResponse.ok) {
+                        const uploadResult = await uploadResponse.json();
+                        imageUrl = uploadResult.imageUrl;
+                        Logger.success('Nova imagem enviada: ' + imageUrl);
+                    } else {
+                        Logger.warn('Erro ao enviar nova imagem, mantendo imagem atual');
+                    }
+                } catch (error) {
+                    Logger.warn('Erro ao enviar nova imagem: ' + error.message);
+                }
+            }
+
             Logger.group('Atualizando produto');
             try {
                 const response = await fetch(`${API_BASE}/${id}`, {
@@ -702,7 +1020,9 @@
                     },
                     body: JSON.stringify({
                         name: name,
-                        priceInCents: Math.round(parseFloat(price) * 100)
+                        priceInCents: Math.round(parseFloat(price) * 100),
+                        filters: selectedFilterIds,
+                        imageUrl: imageUrl
                     })
                 });
 

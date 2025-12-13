@@ -1,12 +1,16 @@
 package com.example.projeto_test.service;
 
+import com.example.projeto_test.model.Filter;
 import com.example.projeto_test.model.Product;
+import com.example.projeto_test.repository.FilterRepository;
 import com.example.projeto_test.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Serviço de negócio para operações com produtos.
@@ -25,6 +29,9 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private FilterRepository filterRepository;
+
     /**
      * Cria um novo produto no cardápio.
      *
@@ -32,6 +39,19 @@ public class ProductService {
      * @return Produto criado com ID gerado
      */
     public Product createProduct(@NonNull Product product) {
+        // Processar filtros: buscar objetos Filter completos do banco
+        if (product.getFilters() != null && !product.getFilters().isEmpty()) {
+            Set<Filter> processedFilters = new HashSet<>();
+            for (Filter filter : product.getFilters()) {
+                Long filterId = filter.getId();
+                if (filterId != null) {
+                    Filter fullFilter = filterRepository.findById(filterId)
+                            .orElseThrow(() -> new RuntimeException("Filter not found with id: " + filterId));
+                    processedFilters.add(fullFilter);
+                }
+            }
+            product.setFilters(processedFilters);
+        }
         return productRepository.save(product);
     }
 
@@ -68,6 +88,26 @@ public class ProductService {
         Product product = getProductById(id);
         product.setName(productDetails.getName());
         product.setPriceInCents(productDetails.getPriceInCents());
+        
+        // Atualizar imagem se fornecida
+        if (productDetails.getImageUrl() != null) {
+            product.setImageUrl(productDetails.getImageUrl());
+        }
+        
+        // Processar filtros: buscar objetos Filter completos do banco
+        if (productDetails.getFilters() != null) {
+            Set<Filter> processedFilters = new HashSet<>();
+            for (Filter filter : productDetails.getFilters()) {
+                Long filterId = filter.getId();
+                if (filterId != null) {
+                    Filter fullFilter = filterRepository.findById(filterId)
+                            .orElseThrow(() -> new RuntimeException("Filter not found with id: " + filterId));
+                    processedFilters.add(fullFilter);
+                }
+            }
+            product.setFilters(processedFilters);
+        }
+        
         return productRepository.save(product);
     }
 

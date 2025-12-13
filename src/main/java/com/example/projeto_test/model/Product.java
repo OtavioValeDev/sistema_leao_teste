@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entidade que representa um produto do cardápio do restaurante.
@@ -47,13 +49,27 @@ public class Product {
     @JsonProperty("priceInCents")
     private Integer priceInCents;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "product_filters", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "filter_id"))
+    @JsonProperty("filters")
+    private Set<Filter> filters = new HashSet<>();
+
+    /**
+     * URL ou caminho da imagem do produto (opcional).
+     * Pode ser uma URL externa ou caminho relativo para imagem local.
+     */
+    @Column(length = 500)
+    @JsonProperty("imageUrl")
+    private String imageUrl;
+
     /** Construtor padrão necessário para JPA */
-    public Product() {}
+    public Product() {
+    }
 
     /**
      * Construtor completo para criar um produto.
      *
-     * @param name Nome do produto
+     * @param name         Nome do produto
      * @param priceInCents Preço em centavos
      */
     public Product(String name, Integer priceInCents) {
@@ -64,20 +80,50 @@ public class Product {
     // ===== GETTERS E SETTERS =====
 
     /** @return Identificador único do produto */
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
     /** @param id Identificador único do produto */
-    public void setId(Long id) { this.id = id; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     /** @return Nome do produto */
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
     /** @param name Nome do produto */
-    public void setName(String name) { this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
     /** @return Preço em centavos */
-    public Integer getPriceInCents() { return priceInCents; }
+    public Integer getPriceInCents() {
+        return priceInCents;
+    }
 
     /** @param priceInCents Preço em centavos */
-    public void setPriceInCents(Integer priceInCents) { this.priceInCents = priceInCents; }
+    public void setPriceInCents(Integer priceInCents) {
+        this.priceInCents = priceInCents;
+    }
+
+    public Set<Filter> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(Set<Filter> filters) {
+        this.filters = filters;
+    }
+
+    /** @return URL da imagem do produto */
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    /** @param imageUrl URL da imagem do produto */
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

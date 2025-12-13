@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,106 +8,119 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
-      /* Inlined CSS from style.css */
-      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-      :root {
-          --bg:#fff6e9;
-          --card:#ffffff;
-          --muted:#6b7280;
-          --accent:#ff6b00;
-          --accent-2:#ffd166;
-          --success:#27ae60;
-          --danger:#e74c3c;
-          --radius:14px;
-          --shadow: 0 10px 30px rgba(15,15,15,0.08);
-      }
+        /* Inlined CSS from style.css */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg: #fff6e9;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #ff6b00;
+            --accent-2: #ffd166;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --radius: 14px;
+            --shadow: 0 10px 30px rgba(15, 15, 15, 0.08);
+        }
 
         body {
-          font-family: 'Poppins', sans-serif;
-          background: linear-gradient(180deg,#fff 0%, #fff6e9 100%);
-      }
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #fff 0%, #fff6e9 100%);
+        }
 
-      /* Accessibility focus */
-      :focus {
-          outline: 3px solid rgba(255,107,0,0.18);
-          outline-offset: 4px;
-      }
-      /* Product card hover effect */
-      .product-card {
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
+        /* Accessibility focus */
+        :focus {
+            outline: 3px solid rgba(255, 107, 0, 0.18);
+            outline-offset: 4px;
+        }
 
-      .product-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      }
+        /* Product card hover effect */
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-      /* Custom scrollbar */
-      ::-webkit-scrollbar {
-          width: 8px;
-      }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
 
-      ::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 10px;
-      }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
 
-      ::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 10px;
-      }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
 
-      ::-webkit-scrollbar-thumb:hover {
-          background: #555;
-      }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
 
-      /* Animation for cart items */
-      @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-      }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
 
-      .cart-item {
-          animation: fadeIn 0.3s ease forwards;
-      }
+        /* Animation for cart items */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-      /* Preferential service styles */
-      .preferential-service-section {
-          background: linear-gradient(45deg, #f39c12, #e67e22);
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cart-item {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        /* Preferential service styles */
+        .preferential-service-section {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
             padding: 20px;
-          margin: 20px 0;
-          border-radius: 10px;
+            margin: 20px 0;
+            border-radius: 10px;
             text-align: center;
-          box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
-      }
-      .preferential-service-section h3 {
-          color: white;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .preferential-service-section h3 {
+            color: white;
             margin-bottom: 10px;
             font-size: 1.5em;
-      }
-      .preferential-service-section p {
-          color: rgba(255,255,255,0.9);
+        }
+
+        .preferential-service-section p {
+            color: rgba(255, 255, 255, 0.9);
             margin-bottom: 15px;
         }
-      .preferential-button {
-          background: white;
-          color: #e67e22;
+
+        .preferential-button {
+            background: white;
+            color: #e67e22;
             border: none;
-          padding: 12px 25px;
-          border-radius: 8px;
+            padding: 12px 25px;
+            border-radius: 8px;
             cursor: pointer;
-          font-size: 1.1em;
+            font-size: 1.1em;
             font-weight: bold;
-          transition: all 0.3s;
-          box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-      }
-      .preferential-button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      }
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .preferential-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
 
 
-      /* Receipt modal styles */
+        /* Receipt modal styles */
         .receipt-modal {
             display: none;
             position: fixed;
@@ -118,6 +132,7 @@
             z-index: 1000;
             animation: fadeIn 0.3s ease;
         }
+
         .receipt-content {
             position: absolute;
             top: 50%;
@@ -129,44 +144,45 @@
             max-width: 400px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
-      /* Preferential receipt modal */
-      .preferential-modal {
-          display: none;
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.8);
-          z-index: 1000;
-          animation: fadeIn 0.3s ease;
-      }
-      .preferential-content {
+        /* Preferential receipt modal */
+        .preferential-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .preferential-content {
             position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: white;
-          padding: 30px;
-          border-radius: 15px;
-          max-width: 500px;
-          width: 90%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
             text-align: center;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
-
     </style>
 </head>
+
 <body class="bg-gray-100">
     <main class="min-h-screen bg-gradient-to-br from-orange-50 to-blue-50 flex items-center justify-center p-4">
         <div class="w-full max-w-7xl space-y-8">
             <!-- Header -->
             <div class="text-center">
                 <div class="flex justify-center items-center mb-4">
-                    <span class="text-4xl">🍽️</span>
+                    <img src="/logo.svg" alt="Sr. Leão" class="w-24 h-24" style="max-width: 96px; height: auto;">
                 </div>
                 <h1 class="text-3xl font-bold text-gray-800 mb-2">Área do Cliente</h1>
                 <p class="text-gray-600">Escolha seus produtos e faça seu pedido</p>
@@ -179,11 +195,15 @@
                     <section class="lg:w-3/4">
                         <div class="controls mb-6">
                             <div class="flex gap-2 mb-4">
-                                <div class="search flex items-center gap-2 p-4 rounded-xl bg-orange-50 border-2 border-orange-100 flex-1">
+                                <div
+                                    class="search flex items-center gap-2 p-4 rounded-xl bg-orange-50 border-2 border-orange-100 flex-1">
                                     <i data-feather="search" class="text-orange-600"></i>
-                                    <input id="searchInput" class="w-full bg-transparent outline-none text-gray-700" placeholder="Pesquisar (ex: hambúrguer, batata)" aria-label="Pesquisar produtos">
+                                    <input id="searchInput" class="w-full bg-transparent outline-none text-gray-700"
+                                        placeholder="Pesquisar (ex: hambúrguer, batata)"
+                                        aria-label="Pesquisar produtos">
                                 </div>
-                                <button id="refreshProductsBtn" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl font-medium transition duration-200 flex items-center gap-2">
+                                <button id="refreshProductsBtn"
+                                    class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl font-medium transition duration-200 flex items-center gap-2">
                                     <i data-feather="refresh-cw" class="w-4 h-4"></i>
                                     <span>Atualizar</span>
                                 </button>
@@ -192,11 +212,13 @@
                                 <!-- Categories will be populated by JS -->
                             </div>
                         </div>
-                        <h2 class="text-2xl font-bold mb-6 text-gray-800">🍽️ Escolha seus Produtos</h2>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800">Escolha seus Produtos</h2>
                         <div id="productsContainer">
                             <!-- Products loading state -->
                             <div class="text-center py-12 text-gray-500" id="productsLoadingState">
-                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+                                <div
+                                    class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4">
+                                </div>
                                 Carregando produtos...
                             </div>
 
@@ -211,7 +233,8 @@
                                     <i data-feather="alert-circle" class="w-16 h-16 mx-auto mb-4"></i>
                                     <h3 class="text-xl font-bold mb-2">Erro ao carregar produtos</h3>
                                     <p class="mb-4">Não foi possível carregar o cardápio.</p>
-                                    <button onclick="retryLoadProducts()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium transition duration-200">
+                                    <button onclick="retryLoadProducts()"
+                                        class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium transition duration-200">
                                         Tentar Novamente
                                     </button>
                                 </div>
@@ -246,19 +269,23 @@
                                     <span>Total:</span>
                                     <span id="total">R$0,00</span>
                                 </div>
-                                <button id="checkout-btn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <button id="checkout-btn"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled>
                                     Finalizar Pedido
                                 </button>
                             </div>
                         </div>
 
                         <!-- Preferential Service Section -->
-                        <div class="mt-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-xl text-center">
-                            <h3 class="font-bold mb-2">⭐ Atendimento Preferencial</h3>
-                            <p class="text-sm mb-3 opacity-90">Precisa de atendimento rápido?</p>
-                            <button id="preferentialButton" class="bg-white text-orange-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition duration-200">
-                                🚀 Solicitar
-                            </button>
+                        <div class="mt-6 p-4 rounded-xl text-center">
+                            <img id="preferentialButton" 
+                                 src="/preferential-service.svg"
+                                 alt="Acessibilidade - Atendimento Preferencial"
+                                 class="cursor-pointer hover:opacity-90 hover:scale-105 transition-all duration-200 mx-auto shadow-md"
+                                 style="width: 200px; height: 200px; border-radius: 25px;"
+                                 onclick="requestPreferentialService()"
+                                 title="Clique para solicitar atendimento preferencial">
                         </div>
                     </section>
                 </div>
@@ -281,10 +308,12 @@
             <div id="order-summary" class="mb-6">
                 <!-- Order summary will appear here -->
             </div>
-            <button onclick="processOrder()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition duration-200 mr-2">
+            <button onclick="processOrder()"
+                class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition duration-200 mr-2">
                 Confirmar Pedido
             </button>
-            <button onclick="closeModal()" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
+            <button onclick="closeModal()"
+                class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
                 Cancelar
             </button>
         </div>
@@ -308,7 +337,8 @@
                 <!-- Receipt details will be populated here -->
             </div>
 
-            <div style="margin: 20px 0; padding: 15px; background: #fff3cd; border-radius: 8px; border: 1px solid #f0c674;">
+            <div
+                style="margin: 20px 0; padding: 15px; background: #fff3cd; border-radius: 8px; border: 1px solid #f0c674;">
                 <strong>📢 Importante:</strong><br>
                 Anote seu número de chamada e aguarde ser chamado no balcão.
             </div>
@@ -320,67 +350,67 @@
     </div>
 
     <script>
-      // ============================================================================
-      // SISTEMA DE LOGGING MINIMALISTA
-      // ============================================================================
-      const Logger = {
-        enabled: true, // Desative para produção
-        
-        log: function(message, data = null) {
-          if (!this.enabled) return;
-          if (data) {
-            console.log(`%c[INFO] ${message}`, 'color: #3b82f6; font-weight: bold', data);
-          } else {
-            console.log(`%c[INFO] ${message}`, 'color: #3b82f6; font-weight: bold');
-          }
-        },
-        
-        success: function(message, data = null) {
-          if (!this.enabled) return;
-          if (data) {
-            console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold', data);
-          } else {
-            console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold');
-          }
-        },
-        
-        error: function(message, error = null) {
-          if (!this.enabled) return;
-          if (error) {
-            console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold', error);
-          } else {
-            console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold');
-          }
-        },
-        
-        warn: function(message, data = null) {
-          if (!this.enabled) return;
-          if (data) {
-            console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold', data);
-          } else {
-            console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold');
-          }
-        },
-        
-        group: function(title) {
-          if (!this.enabled) return;
-          console.group(`%c${title}`, 'color: #6366f1; font-weight: bold');
-        },
-        
-        groupEnd: function() {
-          if (!this.enabled) return;
-          console.groupEnd();
-        }
-      };
+        // ============================================================================
+        // SISTEMA DE LOGGING MINIMALISTA
+        // ============================================================================
+        const Logger = {
+            enabled: true, // Desative para produção
 
-      // ============================================================================
-      // COMPONENTES
-      // ============================================================================
-      // Inlined navbar component
-      class CustomNavbar extends HTMLElement {
-        connectedCallback() {
-          this.attachShadow({ mode: 'open' });
-          this.shadowRoot.innerHTML = `
+            log: function (message, data = null) {
+                if (!this.enabled) return;
+                if (data) {
+                    console.log(`%c[INFO] ${message}`, 'color: #3b82f6; font-weight: bold', data);
+                } else {
+                    console.log(`%c[INFO] ${message}`, 'color: #3b82f6; font-weight: bold');
+                }
+            },
+
+            success: function (message, data = null) {
+                if (!this.enabled) return;
+                if (data) {
+                    console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold', data);
+                } else {
+                    console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold');
+                }
+            },
+
+            error: function (message, error = null) {
+                if (!this.enabled) return;
+                if (error) {
+                    console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold', error);
+                } else {
+                    console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold');
+                }
+            },
+
+            warn: function (message, data = null) {
+                if (!this.enabled) return;
+                if (data) {
+                    console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold', data);
+                } else {
+                    console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold');
+                }
+            },
+
+            group: function (title) {
+                if (!this.enabled) return;
+                console.group(`%c${title}`, 'color: #6366f1; font-weight: bold');
+            },
+
+            groupEnd: function () {
+                if (!this.enabled) return;
+                console.groupEnd();
+            }
+        };
+
+        // ============================================================================
+        // COMPONENTES
+        // ============================================================================
+        // Inlined navbar component
+        class CustomNavbar extends HTMLElement {
+            connectedCallback() {
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
             <style>
               nav {
                 background-color: #111;
@@ -435,7 +465,7 @@
             <nav>
               <div class="nav-container">
                 <div class="logo">
-                  <i data-feather="coffee" class="logo-icon"></i>
+                  <img src="/logo.svg" alt="Sr. Leão" style="width: 32px; height: 32px; margin-right: 8px; vertical-align: middle;">
                   <span>Sistema de Gestão - Senhor Leão</span>
                 </div>
                 <div class="cart-icon">
@@ -446,18 +476,18 @@
             </nav>
           `;
 
-          document.addEventListener('cartUpdated', (e) => {
-            const count = e.detail.count;
-            this.shadowRoot.getElementById('nav-cart-count').textContent = count;
-          });
+                document.addEventListener('cartUpdated', (e) => {
+                    const count = e.detail.count;
+                    this.shadowRoot.getElementById('nav-cart-count').textContent = count;
+                });
+            }
         }
-      }
-      customElements.define('custom-navbar', CustomNavbar);
-      // Inlined footer component
-      class CustomFooter extends HTMLElement {
-        connectedCallback() {
-          this.attachShadow({ mode: 'open' });
-          this.shadowRoot.innerHTML = `
+        customElements.define('custom-navbar', CustomNavbar);
+        // Inlined footer component
+        class CustomFooter extends HTMLElement {
+            connectedCallback() {
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
             <style>
               footer {
                 background-color: #111;
@@ -532,49 +562,52 @@
             </style>
             
           `;
+            }
         }
-      }
-      customElements.define('custom-footer', CustomFooter);
+        customElements.define('custom-footer', CustomFooter);
 
         // Global variables
         let availableProducts = [];
         let cart = [];
         // Use absolute URLs to avoid routing conflicts with static files
         const API_BASE = window.location.protocol + '//' + window.location.host + '/api/products';
+        const API_FILTERS = window.location.protocol + '//' + window.location.host + '/api/filters';
         const RECIBOS_API = window.location.protocol + '//' + window.location.host + '/api/recibos';
+        let currentFilters = [];
 
 
-      // Initialize the app when DOM is loaded
-      document.addEventListener('DOMContentLoaded', () => {
-        try {
-          feather.replace();
-          init();
-        } catch (error) {
-          Logger.error('Falha na inicialização', error);
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                feather.replace();
+                init();
+            } catch (error) {
+                Logger.error('Falha na inicialização', error);
+            }
+        });
+
+        async function init() {
+            Logger.group('Inicialização');
+            try {
+                await loadFilters();
+                renderCategories();
+                renderCart();
+                setupEventListeners();
+                setupSearch();
+                await loadProducts();
+                Logger.success('Aplicação inicializada');
+            } catch (error) {
+                Logger.error('Erro na inicialização', error);
+                alert('Erro ao inicializar a aplicação: ' + error.message);
+            } finally {
+                Logger.groupEnd();
+            }
         }
-      });
-
-      async function init() {
-          Logger.group('Inicialização');
-          try {
-            renderCategories();
-            renderCart();
-            setupEventListeners();
-            setupSearch();
-            await loadProducts();
-            Logger.success('Aplicação inicializada');
-          } catch (error) {
-            Logger.error('Erro na inicialização', error);
-            alert('Erro ao inicializar a aplicação: ' + error.message);
-          } finally {
-            Logger.groupEnd();
-          }
-      }
 
 
         function setupEventListeners() {
             document.getElementById('checkout-btn').addEventListener('click', showOrderConfirmation);
-            document.getElementById('preferentialButton').addEventListener('click', requestPreferentialService);
+            // preferentialButton agora é uma imagem com onclick inline, não precisa de addEventListener
             document.getElementById('refreshProductsBtn').addEventListener('click', refreshProducts);
         }
 
@@ -636,7 +669,7 @@
 
                 const responseText = await response.text();
                 availableProducts = JSON.parse(responseText);
-                
+
                 Logger.success(`${availableProducts.length} produto(s) carregado(s)`);
 
                 if (availableProducts.length === 0) {
@@ -698,7 +731,7 @@
 
                 availableProducts = await response.json();
                 Logger.success(`Fallback: ${availableProducts.length} produto(s) carregado(s)`);
-                
+
                 if (availableProducts.length === 0) {
                     setProductsState('empty');
                 } else {
@@ -712,32 +745,36 @@
             }
         }
 
-      function renderProducts(filteredProducts = availableProducts) {
-          const productsGrid = document.getElementById('productsGrid');
+        function renderProducts(filteredProducts = availableProducts) {
+            const productsGrid = document.getElementById('productsGrid');
 
-          if (!productsGrid) {
-              Logger.error('Elemento productsGrid não encontrado');
-              return;
-          }
+            if (!productsGrid) {
+                Logger.error('Elemento productsGrid não encontrado');
+                return;
+            }
 
-          productsGrid.innerHTML = '';
+            productsGrid.innerHTML = '';
 
-          if (filteredProducts.length === 0) {
-              productsGrid.innerHTML = '<div class="text-center py-8 text-gray-500">Nenhum produto encontrado na busca.</div>';
-              return;
-          }
+            if (filteredProducts.length === 0) {
+                productsGrid.innerHTML = '<div class="text-center py-8 text-gray-500">Nenhum produto encontrado na busca.</div>';
+                return;
+            }
 
-          filteredProducts.forEach(product => {
-              const productCard = document.createElement('div');
-              productCard.className = 'product-card bg-white rounded-xl p-4 shadow-md border-2 border-transparent hover:border-orange-100 transition-all';
-              productCard.setAttribute('data-product-id', product.id);
+            filteredProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card bg-white rounded-xl p-4 shadow-md border-2 border-transparent hover:border-orange-100 transition-all';
+                productCard.setAttribute('data-product-id', product.id);
 
-              const priceFormatted = (product.priceInCents / 100).toFixed(2).replace('.', ',');
+                const priceFormatted = (product.priceInCents / 100).toFixed(2).replace('.', ',');
 
-              productCard.innerHTML = `
-                  <div class="w-full h-48 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg mb-3 flex items-center justify-center">
-                      <span class="text-4xl">🍽️</span>
-                  </div>
+                const imageHtml = product.imageUrl 
+                    ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-lg mb-3">`
+                    : `<div class="w-full h-48 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg mb-3 flex items-center justify-center">
+                          <img src="/logo.svg" alt="Sr. Leão" class="w-20 h-20 opacity-50">
+                       </div>`;
+                
+                productCard.innerHTML = `
+                  ${imageHtml}
                   <div>
                       <h3 class="font-bold text-lg mb-2 text-gray-800">${product.name}</h3>
                       <p class="text-gray-600 text-sm mb-3">Delicioso prato do nosso cardápio</p>
@@ -751,52 +788,88 @@
                   </div>
               `;
 
-              // Add event listener to the button
-              const addButton = productCard.querySelector('.add-to-cart-btn');
-              addButton.addEventListener('click', function() {
-                  const productId = this.getAttribute('data-product-id');
-                  console.log('🔘 Botão clicado, ID do produto:', productId);
-                  addToCart(productId);
-              });
+                // Add event listener to the button
+                const addButton = productCard.querySelector('.add-to-cart-btn');
+                addButton.addEventListener('click', function () {
+                    const productId = this.getAttribute('data-product-id');
+                    console.log('🔘 Botão clicado, ID do produto:', productId);
+                    addToCart(productId);
+                });
 
-              productsGrid.appendChild(productCard);
-          });
-      }
+                productsGrid.appendChild(productCard);
+            });
+        }
 
-      function renderCategories() {
-          const categoriesContainer = document.querySelector('.categories');
-          // Como os produtos não têm categoria definida na API, vamos criar uma categoria padrão
-          const uniqueCategories = ['Lanches', 'Bebidas', 'Porções'];
-          categoriesContainer.innerHTML = '';
-          uniqueCategories.forEach(category => {
-              const chip = document.createElement('button');
-              chip.className = 'chip px-4 py-2 rounded-full bg-orange-50 text-orange-600 font-medium text-sm';
-              chip.textContent = category;
-              chip.onclick = () => filterByCategory(category);
-              categoriesContainer.appendChild(chip);
-          });
-          const allChip = document.createElement('button');
-          allChip.className = 'chip px-4 py-2 rounded-full bg-orange-600 text-white font-medium text-sm';
-          allChip.textContent = 'Todos';
-          allChip.onclick = () => renderProducts();
-          categoriesContainer.prepend(allChip);
-      }
+        async function loadFilters() {
+            try {
+                const response = await fetch(API_FILTERS);
+                if (response.ok) {
+                    currentFilters = await response.json();
+                }
+            } catch (e) {
+                Logger.error('Erro ao carregar filtros', e);
+            }
+        }
 
-      function filterByCategory(category) {
-          // Como os produtos não têm categoria definida, vamos mostrar todos por enquanto
-          // Futuramente podemos adicionar categorias aos produtos na API
-          renderProducts(availableProducts);
-      }
+        function renderCategories() {
+            const categoriesContainer = document.querySelector('.categories');
+            categoriesContainer.innerHTML = '';
 
-      function setupSearch() {
-          const searchInput = document.getElementById('searchInput');
-          searchInput.addEventListener('input', (e) => {
-              const term = e.target.value.toLowerCase();
-              const filtered = availableProducts.filter(p =>
-                  p.name.toLowerCase().includes(term)
-              );
-              renderProducts(filtered);
-          });
+            // "Todos" button
+            const allChip = document.createElement('button');
+            allChip.className = 'chip px-4 py-2 rounded-full bg-orange-600 text-white font-medium text-sm transition-colors border border-transparent';
+            allChip.textContent = 'Todos';
+            allChip.onclick = () => {
+                setActiveChip(allChip);
+                renderProducts(availableProducts);
+            };
+            categoriesContainer.appendChild(allChip);
+
+            currentFilters.forEach(filter => {
+                const chip = document.createElement('button');
+                chip.className = 'chip px-4 py-2 rounded-full bg-orange-50 text-orange-600 font-medium text-sm hover:bg-orange-100 transition-colors border border-orange-100';
+                chip.textContent = filter.name;
+                chip.onclick = () => {
+                    setActiveChip(chip);
+                    filterByFilterId(filter.id);
+                };
+                categoriesContainer.appendChild(chip);
+            });
+        }
+
+        function setActiveChip(activeChip) {
+            document.querySelectorAll('.chip').forEach(c => {
+                c.classList.remove('bg-orange-600', 'text-white');
+                c.classList.add('bg-orange-50', 'text-orange-600');
+            });
+            activeChip.classList.remove('bg-orange-50', 'text-orange-600');
+            activeChip.classList.add('bg-orange-600', 'text-white');
+        }
+
+        function filterByFilterId(filterId) {
+            const filtered = availableProducts.filter(p =>
+                p.filters && p.filters.some(f => f.id === filterId)
+            );
+            if (filtered.length === 0) {
+                // Show empty message in grid
+                const grid = document.getElementById('productsGrid');
+                grid.innerHTML = '<div class="text-center py-8 text-gray-500 col-span-full">Nenhum produto encontrado nesta categoria.</div>';
+            } else {
+                renderProducts(filtered);
+            }
+        }
+
+
+
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = availableProducts.filter(p =>
+                    p.name.toLowerCase().includes(term)
+                );
+                renderProducts(filtered);
+            });
         }
 
         // Product selection functions
@@ -847,13 +920,13 @@
         }
 
         // Make addToCart globally accessible
-        window.addToCart = function(productId) {
+        window.addToCart = function (productId) {
             const product = availableProducts.find(p => p.id == productId || p.id === Number(productId));
             if (!product) {
                 Logger.error(`Produto não encontrado (ID: ${productId})`);
                 return;
             }
-            
+
             const existingItem = cart.find(item => item.productId == productId || item.productId === Number(productId));
             if (existingItem) {
                 existingItem.quantity += 1;
@@ -874,15 +947,15 @@
             const cartItems = document.getElementById('cart-items');
             const emptyCartMessage = document.getElementById('empty-cart-message');
             const checkoutBtn = document.getElementById('checkout-btn');
-            
+
             if (!cartItems) {
                 Logger.error('Elemento cart-items não encontrado');
                 return;
             }
-            
+
             // Limpar apenas os itens do carrinho, não a mensagem vazia
             cartItems.innerHTML = '';
-            
+
             if (cart.length === 0) {
                 // Mostrar mensagem de carrinho vazio
                 if (emptyCartMessage) {
@@ -924,13 +997,13 @@
                             </div>
                         </div>
                     `;
-                    
+
                     // Add event listeners for cart item buttons
                     const decreaseBtn = cartItem.querySelector('.decrease-qty-btn');
                     const increaseBtn = cartItem.querySelector('.increase-qty-btn');
                     const removeBtn = cartItem.querySelector('.remove-item-btn');
-                    
-                    decreaseBtn.addEventListener('click', function() {
+
+                    decreaseBtn.addEventListener('click', function () {
                         const productId = this.getAttribute('data-product-id');
                         const item = cart.find(i => i.productId == productId || i.productId === Number(productId));
                         if (item && item.quantity > 1) {
@@ -939,20 +1012,20 @@
                             removeFromCart(productId);
                         }
                     });
-                    
-                    increaseBtn.addEventListener('click', function() {
+
+                    increaseBtn.addEventListener('click', function () {
                         const productId = this.getAttribute('data-product-id');
                         const item = cart.find(i => i.productId == productId || i.productId === Number(productId));
                         if (item) {
                             updateQuantity(productId, item.quantity + 1);
                         }
                     });
-                    
-                    removeBtn.addEventListener('click', function() {
+
+                    removeBtn.addEventListener('click', function () {
                         const productId = this.getAttribute('data-product-id');
                         removeFromCart(productId);
                     });
-                    
+
                     cartItems.appendChild(cartItem);
                 });
             }
@@ -965,7 +1038,7 @@
         }
 
         // Make removeFromCart globally accessible
-        window.removeFromCart = function(productId) {
+        window.removeFromCart = function (productId) {
             const index = cart.findIndex(item => item.productId == productId || item.productId === Number(productId));
             if (index !== -1) {
                 const item = cart[index];
@@ -979,7 +1052,7 @@
         }
 
         // Make updateQuantity globally accessible
-        window.updateQuantity = function(productId, newQuantity) {
+        window.updateQuantity = function (productId, newQuantity) {
             const item = cart.find(item => item.productId == productId || item.productId === Number(productId));
             if (item) {
                 if (newQuantity <= 0) {
@@ -1174,9 +1247,11 @@
         // Preferential service - envia notificação direta para funcionário
         async function requestPreferentialService() {
             const button = document.getElementById('preferentialButton');
-            const originalText = button.textContent;
-            button.disabled = true;
-            button.textContent = '⏳ Solicitando...';
+            const originalOpacity = button.style.opacity;
+            const originalCursor = button.style.cursor;
+            button.style.opacity = '0.6';
+            button.style.cursor = 'not-allowed';
+            button.style.pointerEvents = 'none';
             Logger.group('Solicitando atendimento preferencial');
 
             try {
@@ -1198,8 +1273,9 @@
                 if (result.success) {
                     Logger.success(`Notificação enviada (ID: ${result.notificationId})`);
                     alert('✅ Solicitação de atendimento preferencial enviada com sucesso!\n\nAguarde ser chamado pelo sistema de som.');
-                    button.textContent = '✅ Solicitado!';
-                    button.disabled = true; // Desabilita após sucesso
+                    // Mantém desabilitado após sucesso
+                    button.style.opacity = '0.5';
+                    button.title = 'Solicitação já enviada';
                 } else {
                     throw new Error(result.message || 'Erro desconhecido');
                 }
@@ -1207,8 +1283,9 @@
             } catch (error) {
                 Logger.error('Falha ao solicitar atendimento preferencial', error);
                 alert('❌ Erro ao solicitar atendimento preferencial: ' + error.message);
-                button.disabled = false;
-                button.textContent = originalText;
+                button.style.opacity = originalOpacity || '1';
+                button.style.cursor = originalCursor || 'pointer';
+                button.style.pointerEvents = 'auto';
             } finally {
                 Logger.groupEnd();
             }
@@ -1273,11 +1350,10 @@
             }
         }
 
-        // Setup preferential service button
-        document.getElementById('preferentialButton').addEventListener('click', requestPreferentialService);
+        // Setup preferential service image (click handler is already in onclick attribute)
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const receiptModal = document.getElementById('receiptModal');
             const preferentialModal = document.getElementById('preferentialModal');
 
@@ -1290,4 +1366,5 @@
         }
     </script>
 </body>
+
 </html>
