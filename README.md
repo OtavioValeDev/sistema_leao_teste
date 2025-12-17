@@ -67,9 +67,9 @@ sistema-leao/
    ```
 
 3. **Acesse o sistema:**
-   - Cliente: http://localhost:8081/cliente.html
-   - Funcionário: http://localhost:8081/funcionario.html
-   - Recibos: http://localhost:8081/recibos.html
+   - Cliente: http://localhost:8080/cliente.html
+   - Funcionário: http://localhost:8080/funcionario.html
+   - Recibos: http://localhost:8080/recibos.html
 ## 🔌 API REST
 
 ### Endpoints de Produtos (`/api/products`)

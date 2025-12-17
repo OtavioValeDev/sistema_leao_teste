@@ -1,5 +1,6 @@
 package com.example.projeto_test.service;
 // ↑ Declara que este arquivo pertence ao pacote de serviços
+
 //   Serviços contêm a lógica de negócio da aplicação
 
 import com.example.projeto_test.model.Recibo;
@@ -36,12 +37,12 @@ import java.util.List;
  * @since 2025-01-01
  */
 @Service // ← Anotação que registra esta classe como um serviço Spring
-//   - Instâncias desta classe são gerenciadas pelo Spring
-//   - Pode ser injetada em outras classes (@Autowired)
+// - Instâncias desta classe são gerenciadas pelo Spring
+// - Pode ser injetada em outras classes (@Autowired)
 public class ReciboService {
 
     @Autowired // ← Injeção automática do repository
-    //   Spring encontra automaticamente uma instância de ReciboRepository
+    // Spring encontra automaticamente uma instância de ReciboRepository
     private ReciboRepository reciboRepository;
     // ↑ Campo que armazena referência ao repository de recibos
 
@@ -51,8 +52,8 @@ public class ReciboService {
      * Valida se há itens no carrinho, gera automaticamente o número
      * de chamada aleatório e calcula o total da venda.
      *
-     * @param itens Lista de itens comprados
-     * @param observacoes Observações especiais do cliente
+     * @param itens          Lista de itens comprados
+     * @param observacoes    Observações especiais do cliente
      * @param formaPagamento Método de pagamento escolhido
      * @return Recibo criado e salvo no banco
      * @throws IllegalArgumentException Se o carrinho estiver vazio
@@ -67,16 +68,17 @@ public class ReciboService {
      * Valida se há itens no carrinho, gera automaticamente o número
      * de chamada aleatório e calcula o total da venda.
      *
-     * @param itens Lista de itens comprados
-     * @param observacoes Observações especiais do cliente
-     * @param formaPagamento Método de pagamento escolhido
+     * @param itens           Lista de itens comprados
+     * @param observacoes     Observações especiais do cliente
+     * @param formaPagamento  Método de pagamento escolhido
      * @param tipoAtendimento Tipo de atendimento (NORMAL ou PREFERENCIAL)
      * @return Recibo criado e salvo no banco
      * @throws IllegalArgumentException Se o carrinho estiver vazio
      */
-    public Recibo createRecibo(List<ItemCompra> itens, String observacoes, String formaPagamento, String tipoAtendimento) {
+    public Recibo createRecibo(List<ItemCompra> itens, String observacoes, String formaPagamento,
+            String tipoAtendimento) {
         // ↑ Método principal que cria um novo recibo
-        //   Recebe todos os dados necessários para gerar um pedido
+        // Recebe todos os dados necessários para gerar um pedido
 
         if (itens == null || itens.isEmpty()) {
             // ↑ Verifica se a lista de itens é nula ou vazia
@@ -93,11 +95,11 @@ public class ReciboService {
 
         recibo.gerarRecibo(itens, observacoes, formaPagamento, tipoAtendimento);
         // ↑ Chama o método da entidade para preencher todos os dados
-        //   Este método gera o número aleatório e calcula o total
+        // Este método gera o número aleatório e calcula o total
 
         return reciboRepository.save(recibo);
         // ↑ Salva o recibo no banco de dados e retorna
-        //   O save() retorna a entidade salva (com ID gerado)
+        // O save() retorna a entidade salva (com ID gerado)
     }
 
     /**
@@ -119,6 +121,37 @@ public class ReciboService {
     public Recibo getReciboById(@NonNull Long id) {
         return reciboRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recibo not found"));
+    }
+
+    /**
+     * Atualiza as observações, forma de pagamento e itens de um recibo.
+     *
+     * @param id         ID do recibo a ser atualizado
+     * @param novosDados Dados novos
+     * @return Recibo atualizado
+     */
+    public Recibo updateRecibo(@NonNull Long id, Recibo novosDados) {
+        Recibo recibo = getReciboById(id);
+
+        if (novosDados.getObservacoes() != null) {
+            recibo.setObservacoes(novosDados.getObservacoes());
+        }
+        if (novosDados.getFormaPagamento() != null) {
+            recibo.setFormaPagamento(novosDados.getFormaPagamento());
+        }
+
+        // Atualizar itens se fornecidos
+        if (novosDados.getItens() != null && !novosDados.getItens().isEmpty()) {
+            recibo.setItens(novosDados.getItens());
+
+            // Recalcular total
+            int novoTotal = recibo.getItens().stream()
+                    .mapToInt(ItemCompra::getSubtotal)
+                    .sum();
+            recibo.setTotal(novoTotal);
+        }
+
+        return reciboRepository.save(recibo);
     }
 
     /**

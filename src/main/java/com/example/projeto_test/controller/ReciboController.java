@@ -43,8 +43,8 @@ public class ReciboController {
     public record PagamentoRequest(
             List<Recibo.ItemCompra> itens,
             String observacoes,
-            String formaPagamento
-    ) {}
+            String formaPagamento) {
+    }
 
     /**
      * Record para representar uma requisição de atendimento preferencial.
@@ -53,8 +53,8 @@ public class ReciboController {
      * sem fazer pedido de produtos.
      */
     public record AtendimentoPreferencialRequest(
-            String observacoes
-    ) {}
+            String observacoes) {
+    }
 
     /**
      * Endpoint para gerar um novo recibo.
@@ -96,11 +96,10 @@ public class ReciboController {
     public ResponseEntity<Recibo> atendimentoPreferencial(@RequestBody AtendimentoPreferencialRequest req) {
         try {
             Recibo recibo = reciboService.createRecibo(
-                java.util.Collections.emptyList(), // Lista vazia
-                req.observacoes(),
-                "ATENDIMENTO_PREFERENCIAL",
-                "PREFERENCIAL"
-            );
+                    java.util.Collections.emptyList(), // Lista vazia
+                    req.observacoes(),
+                    "ATENDIMENTO_PREFERENCIAL",
+                    "PREFERENCIAL");
             return ResponseEntity.status(HttpStatus.CREATED)
                     .header("Access-Control-Allow-Origin", "*")
                     .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -145,6 +144,31 @@ public class ReciboController {
                     .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
                     .header("Access-Control-Allow-Headers", "*")
                     .body(recibo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
+        }
+    }
+
+    /**
+     * Atualiza um recibo existente.
+     *
+     * @param id     ID do recibo
+     * @param recibo Dados para atualização
+     * @return Recibo atualizado
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Recibo> atualizar(@PathVariable Long id, @RequestBody Recibo recibo) {
+        try {
+            Recibo atualizado = reciboService.updateRecibo(id, recibo);
+            return ResponseEntity.ok()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .body(atualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound()
                     .header("Access-Control-Allow-Origin", "*")

@@ -173,6 +173,75 @@
             text-align: center;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
+
+        /* Receipt number highlight */
+        .receipt-number {
+            font-size: 3rem !important;
+            font-weight: 800 !important;
+            color: #d35400;
+            margin: 20px 0;
+            padding: 10px;
+            border: 2px dashed #d35400;
+            border-radius: 10px;
+            background-color: #fff6e9;
+        }
+
+        /* Print styles */
+        @media print {
+
+            /* Hide all direct children of body by default */
+            body>* {
+                display: none !important;
+            }
+
+            /* Only show the receipt modal */
+            .receipt-modal {
+                display: flex !important;
+                visibility: visible !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: white;
+                z-index: 9999;
+                align-items: flex-start;
+                /* Align to top for printing */
+                justify-content: center;
+                padding-top: 20px;
+            }
+
+            /* Ensure modal content is visible and styled for print */
+            .receipt-content {
+                display: block !important;
+                visibility: visible !important;
+                box-shadow: none;
+                border: 2px solid #000;
+                width: 100%;
+                max-width: 400px;
+                position: static;
+                transform: none;
+                margin: 0 auto;
+            }
+
+            /* Also ensure preferential modal works if open */
+            #preferentialModal {
+                display: flex !important;
+            }
+
+            /* Hide interactive elements in print */
+            .print-button,
+            .close-button {
+                display: none !important;
+            }
+
+            /* Make receipt number extra visible in print */
+            .receipt-number {
+                font-size: 4rem !important;
+                border: 3px solid #000 !important;
+                color: #000 !important;
+            }
+        }
     </style>
 </head>
 
@@ -279,13 +348,12 @@
 
                         <!-- Preferential Service Section -->
                         <div class="mt-6 p-4 rounded-xl text-center">
-                            <img id="preferentialButton" 
-                                 src="/preferential-service.svg"
-                                 alt="Acessibilidade - Atendimento Preferencial"
-                                 class="cursor-pointer hover:opacity-90 hover:scale-105 transition-all duration-200 mx-auto shadow-md"
-                                 style="width: 200px; height: 200px; border-radius: 25px;"
-                                 onclick="requestPreferentialService()"
-                                 title="Clique para solicitar atendimento preferencial">
+                            <img id="preferentialButton" src="/preferential-service.svg"
+                                alt="Acessibilidade - Atendimento Preferencial"
+                                class="cursor-pointer hover:opacity-90 hover:scale-105 transition-all duration-200 mx-auto shadow-md"
+                                style="width: 200px; height: 200px; border-radius: 25px;"
+                                onclick="requestPreferentialService()"
+                                title="Clique para solicitar atendimento preferencial">
                         </div>
                     </section>
                 </div>
@@ -307,6 +375,39 @@
             <p class="mb-4 text-gray-600">Obrigado pelo seu pedido! Sua comida estará pronta em breve.</p>
             <div id="order-summary" class="mb-6">
                 <!-- Order summary will appear here -->
+            </div>
+
+            <div class="mb-6">
+                <h4 class="font-bold text-gray-800 mb-2">Forma de Pagamento</h4>
+                <div class="space-y-2 bg-gray-50 p-4 rounded-lg">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="payment-method" value="Dinheiro"
+                            class="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300" checked>
+                        <span class="text-gray-700">💵 Dinheiro</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="payment-method" value="Cartão de Crédito"
+                            class="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                        <span class="text-gray-700">💳 Cartão de Crédito</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="payment-method" value="Cartão de Débito"
+                            class="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                        <span class="text-gray-700">💳 Cartão de Débito</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="payment-method" value="Pix"
+                            class="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                        <span class="text-gray-700">💠 Pix</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h4 class="font-bold text-gray-800 mb-2">Observações</h4>
+                <textarea id="orderObservations"
+                    class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none resize-none"
+                    rows="3" placeholder="Ex: Sem cebola, capricha no molho..."></textarea>
             </div>
             <button onclick="processOrder()"
                 class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition duration-200 mr-2">
@@ -767,12 +868,12 @@
 
                 const priceFormatted = (product.priceInCents / 100).toFixed(2).replace('.', ',');
 
-                const imageHtml = product.imageUrl 
+                const imageHtml = product.imageUrl
                     ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-lg mb-3">`
                     : `<div class="w-full h-48 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg mb-3 flex items-center justify-center">
                           <img src="/logo.svg" alt="Sr. Leão" class="w-20 h-20 opacity-50">
                        </div>`;
-                
+
                 productCard.innerHTML = `
                   ${imageHtml}
                   <div>
@@ -1143,10 +1244,18 @@
                     preco: item.price
                 }));
 
+                // Get selected payment method
+                const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked');
+                const formaPagamento = selectedPaymentMethod ? selectedPaymentMethod.value : "Dinheiro";
+
+                // Get observations
+                const obsInput = document.getElementById('orderObservations');
+                const userObs = obsInput ? obsInput.value.trim() : "";
+
                 const orderData = {
                     itens: itens,
-                    observacoes: "Pedido realizado via sistema web",
-                    formaPagamento: "Dinheiro"
+                    observacoes: userObs,
+                    formaPagamento: formaPagamento
                 };
 
                 Logger.group('Processando pedido');
