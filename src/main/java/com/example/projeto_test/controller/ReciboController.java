@@ -206,6 +206,30 @@ public class ReciboController {
     }
 
     /**
+     * Remove um recibo específico do sistema.
+     *
+     * @param id Identificador único do recibo
+     * @return 204 No Content se sucesso, ou 404 se não encontrado
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        try {
+            reciboService.deleteRecibo(id);
+            return ResponseEntity.noContent()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
+        }
+    }
+
+    /**
      * Remove todos os recibos do sistema.
      *
      * Endpoint utilitário para desenvolvimento/testes.

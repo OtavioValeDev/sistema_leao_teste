@@ -167,6 +167,15 @@ public class ReciboService {
     }
 
     /**
+     * Remove um recibo específico do sistema.
+     *
+     * @param id Identificador único do recibo
+     */
+    public void deleteRecibo(@NonNull Long id) {
+        reciboRepository.deleteById(id);
+    }
+
+    /**
      * Remove todos os recibos do sistema.
      *
      * Método utilitário para limpar o histórico em ambiente de desenvolvimento.

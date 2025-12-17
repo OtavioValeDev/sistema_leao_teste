@@ -104,7 +104,12 @@
 			<scope>test</scope>
 			<!-- ↑ Scope test = só usado em testes, não em produção -->
 		</dependency>
-	</dependencies>
+	    <dependency>
+        <groupId>com.mercadopago</groupId>
+        <artifactId>sdk-java</artifactId>
+        <version>2.1.26</version>
+    </dependency>
+</dependencies>
 
 	<build>
 		<!-- ↑ Configurações de build/compilação -->

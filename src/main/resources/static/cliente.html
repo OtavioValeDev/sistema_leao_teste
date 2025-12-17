@@ -378,45 +378,72 @@
             </div>
 
             <div class="mb-6">
+                <!-- Payment method selection removed. Now auto-defaults to Pix. -->
                 <h4 class="font-bold text-gray-800 mb-2">Forma de Pagamento</h4>
-                <div class="space-y-2 bg-gray-50 p-4 rounded-lg">
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="radio" name="payment-method" value="Dinheiro"
-                            class="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300" checked>
-                        <span class="text-gray-700">💵 Dinheiro</span>
-                    </label>
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="radio" name="payment-method" value="Cartão de Crédito"
-                            class="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300">
-                        <span class="text-gray-700">💳 Cartão de Crédito</span>
-                    </label>
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="radio" name="payment-method" value="Cartão de Débito"
-                            class="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300">
-                        <span class="text-gray-700">💳 Cartão de Débito</span>
-                    </label>
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="radio" name="payment-method" value="Pix"
-                            class="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300">
-                        <span class="text-gray-700">💠 Pix</span>
-                    </label>
+                <div class="bg-blue-50 p-4 rounded-lg flex items-center gap-3">
+                    <img src="https://logopng.com.br/logos/pix-106.svg" alt="Pix" class="w-8 h-8">
+                    <span class="text-blue-900 font-bold">Pagamento via PIX</span>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <h4 class="font-bold text-gray-800 mb-2">Observações</h4>
-                <textarea id="orderObservations"
-                    class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none resize-none"
-                    rows="3" placeholder="Ex: Sem cebola, capricha no molho..."></textarea>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="orderObservations" class="font-bold text-gray-700">Observações (Opcional)</label>
+                <textarea id="orderObservations" rows="3"
+                    style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;"
+                    placeholder="Ex: Sem cebola, capricha no molho..."></textarea>
             </div>
-            <button onclick="processOrder()"
-                class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition duration-200 mr-2">
-                Confirmar Pedido
+
+            <button onclick="startPixPayment()"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                <span>Gerar Pix e Pagar</span>
+                <i data-feather="arrow-right"></i>
             </button>
             <button onclick="closeModal()"
                 class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
                 Cancelar
             </button>
+        </div>
+    </div>
+
+    <!-- Pix Payment Modal -->
+    <div id="pixModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-[60]">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md text-center">
+            <h3 class="text-xl font-bold text-gray-800 mb-1">Pague com Pix</h3>
+            <p class="text-gray-500 text-sm mb-4">Escaneie o QR Code</p>
+
+            <div id="pixLoading" class="py-8">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+                <p class="mt-4 text-gray-500">Gerando cobrança...</p>
+            </div>
+
+            <div id="pixContent" class="hidden">
+                <div class="bg-gray-100 p-4 rounded-lg mb-4 inline-block">
+                    <img id="pixQrImage" src="" alt="QR Code Pix" class="w-48 h-48 mx-auto">
+                </div>
+
+                <div class="mb-6 hidden">
+                    <label class="block text-xs font-bold text-gray-500 mb-1">Pix Copia e Cola</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="pixCopyPaste" readonly
+                            class="flex-1 bg-gray-50 border border-gray-300 rounded px-2 py-1 text-xs">
+                        <button onclick="copyPixCode()"
+                            class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-xs font-bold">
+                            Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <div class="flex items-center justify-center gap-2 text-blue-600 mb-4 animate-pulse">
+                        <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                        <span class="text-sm font-bold">Aguardando confirmação do banco...</span>
+                    </div>
+
+                    <button onclick="checkout(true)" class="text-xs text-gray-400 hover:text-gray-600 underline">
+                        Simular Pagamento (Teste)
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -426,7 +453,7 @@
             <span class="close-button" onclick="closeReceiptModal()">&times;</span>
 
             <div class="receipt-header">
-                <h2>🍔 RESTAURANTE</h2>
+                <h2>🍔 Restaurante Senhor Leão</h2>
                 <p>Pedido Realizado com Sucesso!</p>
             </div>
 
@@ -444,9 +471,17 @@
                 Anote seu número de chamada e aguarde ser chamado no balcão.
             </div>
 
-            <button class="print-button" onclick="window.print()">
-                🖨️ Imprimir Recibo
-            </button>
+            <div class="flex flex-col gap-2 mt-4">
+                <button
+                    class="print-button bg-gray-800 text-white w-full py-3 rounded-lg font-bold hover:bg-gray-700 transition"
+                    onclick="window.print()">
+                    🖨️ Imprimir Recibo
+                </button>
+                <button onclick="window.location.reload()"
+                    class="print-button bg-orange-600 text-white w-full py-3 rounded-lg font-bold hover:bg-orange-700 transition">
+                    🔄 Fazer Novo Pedido
+                </button>
+            </div>
         </div>
     </div>
 
@@ -455,7 +490,7 @@
         // SISTEMA DE LOGGING MINIMALISTA
         // ============================================================================
         const Logger = {
-            enabled: true, // Desative para produção
+            enabled: true,
 
             log: function (message, data = null) {
                 if (!this.enabled) return;
@@ -469,27 +504,27 @@
             success: function (message, data = null) {
                 if (!this.enabled) return;
                 if (data) {
-                    console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold', data);
+                    console.log(`%c[SUCCESS] ${message}`, 'color: #10b981; font-weight: bold', data);
                 } else {
-                    console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold');
+                    console.log(`%c[SUCCESS] ${message}`, 'color: #10b981; font-weight: bold');
                 }
             },
 
             error: function (message, error = null) {
                 if (!this.enabled) return;
                 if (error) {
-                    console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold', error);
+                    console.error(`%c[ERROR] ${message}`, 'color: #ef4444; font-weight: bold', error);
                 } else {
-                    console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold');
+                    console.error(`%c[ERROR] ${message}`, 'color: #ef4444; font-weight: bold');
                 }
             },
 
             warn: function (message, data = null) {
                 if (!this.enabled) return;
                 if (data) {
-                    console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold', data);
+                    console.warn(`%c[WARN] ${message}`, 'color: #f59e0b; font-weight: bold', data);
                 } else {
-                    console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold');
+                    console.warn(`%c[WARN] ${message}`, 'color: #f59e0b; font-weight: bold');
                 }
             },
 
@@ -893,7 +928,7 @@
                 const addButton = productCard.querySelector('.add-to-cart-btn');
                 addButton.addEventListener('click', function () {
                     const productId = this.getAttribute('data-product-id');
-                    console.log('🔘 Botão clicado, ID do produto:', productId);
+                    console.log('Botão clicado, ID do produto:', productId);
                     addToCart(productId);
                 });
 
@@ -1349,7 +1384,9 @@
         }
 
         function closeReceiptModal() {
-            document.getElementById('receiptModal').style.display = 'none';
+            // Em modo Kiosk/Terminal, o comportamento mais robusto é recarregar a página 
+            // para garantir que a memória esteja limpa para o próximo cliente.
+            window.location.reload();
         }
 
 
@@ -1473,7 +1510,196 @@
                 closePreferentialModal();
             }
         }
+
+        // =================================================================
+        // MERCADO PAGO PIX LOGIC
+        // =================================================================
+
+        const PAYMENT_API = "http://localhost:8080/api/pagamento";
+        let currentPaymentId = null;
+        let paymentCheckInterval = null;
+
+        async function startPixPayment() {
+            // 1. Validate Cart
+            if (cart.length === 0) {
+                alert("Seu carrinho está vazio!");
+                return;
+            }
+
+            // RESET PAYMENT STATE (Crucial due to race conditions or previous errors)
+            currentPaymentId = null;
+            if (paymentCheckInterval) clearInterval(paymentCheckInterval);
+            paymentCheckInterval = null;
+            isCheckoutProcessing = false;
+            document.getElementById('pixContent').classList.remove('opacity-50');
+
+            // 2. Show Modal & Loading
+            document.getElementById('order-modal').style.display = 'none'; // Close confirmation
+            const modal = document.getElementById('pixModal');
+            modal.classList.remove('hidden');
+            document.getElementById('pixLoading').classList.remove('hidden');
+            document.getElementById('pixContent').classList.add('hidden');
+
+            // 3. Create Payment on Backend
+            try {
+                const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) / 100;
+
+                const response = await fetch(`${PAYMENT_API}/pix`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ valor: totalAmount })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error("❌ ERRO DETALHADO:", errorData);
+                    alert(`Erro no Pagamento: ${errorData.error || 'Verifique o console'}`);
+                    throw new Error(errorData.error || 'Falha ao gerar Pix');
+                }
+
+                const data = await response.json();
+                console.log("[SUCCESS] Pix Generated! ID:", data.id);
+                console.log("[INFO] QR Code Base64 (displaying...):", data.qr_code_base64 ? data.qr_code_base64.substring(0, 50) + "..." : "EMPTY");
+
+                // 4. Render QR Code
+                const serverQr = data.qr_code_base64;
+                const fallbackQr = "iVBORw0KGgoAAAANSUhEUgAAAJQAAACUCAQAAAB8N04MAAAAyklEQVR42u3TQQrAMAwDwX7J/39LTw70IAwEmx72Ea1Gg6v5d8T+I/Yfsf+I/UfsP2L/EfuP2H/E/iP2H7H/iP1H7D9i/xH7j9h/xP4j9h+x/4j9R+w/Yv8R+4/Yf8T+I/Yfsf+I/UfsP2L/EfuP2H/E/iP2H7H/iP1H7D9i/xH7j9h/xP4j9h+x/4j9R+w/Yv8R+4/Yf8T+I/Yfsf+I/UfsP2L/EfuP2H/E/iP2H/kBh3Rz5Qd4n48AAAAASUVORK5CYII=";
+
+                const finalSrc = "/qr-code.png";
+
+                console.log("[INFO] Using Illustrative QR Code (Local File)");
+
+                currentPaymentId = data.id;
+                const imgElement = document.getElementById('pixQrImage');
+
+                // Limpar handlers (importante para remover lógica antiga)
+                imgElement.onload = null;
+                imgElement.onerror = null;
+
+                imgElement.src = finalSrc;
+
+                document.getElementById('pixCopyPaste').value = data.qr_code;
+
+                document.getElementById('pixLoading').classList.add('hidden');
+                document.getElementById('pixContent').classList.remove('hidden');
+
+                // 5. Start Polling
+                startPaymentPolling();
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao gerar Pix. Tente novamente.");
+                modal.classList.add('hidden');
+            }
+        }
+
+        function copyPixCode() {
+            const input = document.getElementById('pixCopyPaste');
+            input.select();
+            document.execCommand('copy');
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = "Copiado!";
+            setTimeout(() => btn.textContent = originalText, 2000);
+        }
+
+        function startPaymentPolling() {
+            if (paymentCheckInterval) clearInterval(paymentCheckInterval);
+
+            paymentCheckInterval = setInterval(async () => {
+                if (!currentPaymentId) return;
+
+                try {
+                    const response = await fetch(`${PAYMENT_API}/${currentPaymentId}/status`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.status === 'approved') {
+                            clearInterval(paymentCheckInterval);
+                            checkout(true); // Proceed to checkout
+                        }
+                    }
+                } catch (e) {
+                    console.error("Polling error", e);
+                }
+            }, 1000); // Check every 1 second
+        }
+
+        let isCheckoutProcessing = false;
+
+        async function checkout(isTestSimulation = false) {
+            if (isCheckoutProcessing) return; // Prevent double click or race condition
+
+            // Se for simulação, chamamos o endpoint que força o status "approved" no servidor
+            if (isTestSimulation && currentPaymentId) {
+                try {
+                    document.getElementById('pixContent').classList.add('opacity-50'); // Feedback visual
+                    // Stop polling immediately to avoid race condition
+                    if (paymentCheckInterval) clearInterval(paymentCheckInterval);
+
+                    await fetch(`${PAYMENT_API}/${currentPaymentId}/confirmar`, { method: 'POST' });
+
+                    // Instant finish
+                    document.getElementById('pixModal').classList.add('hidden');
+                    finishOrderProcess("Pix");
+                } catch (e) {
+                    console.error("Erro na simulação:", e);
+                }
+            } else {
+                // Fallback
+                document.getElementById('pixModal').classList.add('hidden');
+                finishOrderProcess("Pix");
+            }
+        }
+
+        async function finishOrderProcess(paymentMethod) {
+            if (isCheckoutProcessing) return;
+            isCheckoutProcessing = true;
+
+            // Get observations
+            const obsInput = document.getElementById('orderObservations');
+            const userObs = obsInput ? obsInput.value.trim() : "";
+
+            const itens = cart.map(item => ({
+                nome: item.name,
+                quantidade: item.quantity,
+                preco: item.price
+            }));
+
+            const orderData = {
+                itens: itens,
+                observacoes: userObs,
+                formaPagamento: paymentMethod
+            };
+
+            try {
+                const response = await fetch(`${RECIBOS_API}/pagar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const recibo = await response.json();
+
+                // Success!
+                cart = [];
+                renderCart();
+                showReceiptModal(recibo);
+
+            } catch (error) {
+                console.error('Error processing order:', error);
+                alert('Erro ao processar pedido. Por favor, tente novamente.');
+            } finally {
+                // Reset flag after delay to allow modal interaction but prevent immediate double-submit
+                setTimeout(() => { isCheckoutProcessing = false; }, 2000);
+            }
+        }
     </script>
 </body>
 
 </html>
+```

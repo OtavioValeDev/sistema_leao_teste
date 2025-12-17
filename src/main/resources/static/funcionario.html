@@ -694,13 +694,40 @@
                 
                 <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-200">
                     <span class="font-bold text-gray-800">Total: R$ ${totalFormatted}</span>
-                    <button onclick="openEditReciboModalFromCard('${reciboJson}')" 
-                            class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-sm font-medium transition-colors">
-                        ✏️ Editar
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="concludeRecibo(${recibo.id}, '${recibo.numeroChamada}')" 
+                                class="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1">
+                            ✅ Concluir
+                        </button>
+                        <button onclick="openEditReciboModalFromCard('${reciboJson}')" 
+                                class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-sm font-medium transition-colors">
+                            ✏️ Editar
+                        </button>
+                    </div>
                 </div>
             </div>
           `;
+        }
+
+        async function concludeRecibo(id, numeroChamada) {
+            if (!confirm(`Confirmar conclusão do pedido #${numeroChamada}? Ele será removido da lista.`)) return;
+
+            Logger.group(`Concluindo pedido #${numeroChamada}`);
+            try {
+                const response = await fetch(`${RECIBOS_API}/${id}`, { method: 'DELETE' });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                Logger.success(`Pedido #${numeroChamada} concluído (removido)`);
+                showMessage(`✅ Pedido #${numeroChamada} concluído com sucesso!`, 'success');
+                loadRecibos();
+
+            } catch (error) {
+                Logger.error(`Erro ao concluir pedido #${numeroChamada}`, error);
+                alert(`Erro ao concluir pedido: ${error.message}`);
+            } finally {
+                Logger.groupEnd();
+            }
         }
 
         function openEditReciboModalFromCard(reciboJson) {
@@ -720,6 +747,7 @@
                 const response = await fetch(`${RECIBOS_API}/limpar`, { method: 'DELETE' });
                 if (!response.ok) throw new Error('Falha ao limpar');
 
+                Logger.success('Histórico limpo completamente');
                 showMessage('🗑️ Histórico de pedidos apagado com sucesso!', 'success');
                 loadRecibos();
             } catch (error) {
@@ -890,7 +918,7 @@
         // SISTEMA DE LOGGING MINIMALISTA
         // ============================================================================
         const Logger = {
-            enabled: true, // Desative para produção
+            enabled: true,
 
             log: function (message, data = null) {
                 if (!this.enabled) return;
@@ -904,27 +932,27 @@
             success: function (message, data = null) {
                 if (!this.enabled) return;
                 if (data) {
-                    console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold', data);
+                    console.log(`%c[SUCCESS] ${message}`, 'color: #10b981; font-weight: bold', data);
                 } else {
-                    console.log(`%c[OK] ${message}`, 'color: #10b981; font-weight: bold');
+                    console.log(`%c[SUCCESS] ${message}`, 'color: #10b981; font-weight: bold');
                 }
             },
 
             error: function (message, error = null) {
                 if (!this.enabled) return;
                 if (error) {
-                    console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold', error);
+                    console.error(`%c[ERROR] ${message}`, 'color: #ef4444; font-weight: bold', error);
                 } else {
-                    console.error(`%c[ERRO] ${message}`, 'color: #ef4444; font-weight: bold');
+                    console.error(`%c[ERROR] ${message}`, 'color: #ef4444; font-weight: bold');
                 }
             },
 
             warn: function (message, data = null) {
                 if (!this.enabled) return;
                 if (data) {
-                    console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold', data);
+                    console.warn(`%c[WARN] ${message}`, 'color: #f59e0b; font-weight: bold', data);
                 } else {
-                    console.warn(`%c[AVISO] ${message}`, 'color: #f59e0b; font-weight: bold');
+                    console.warn(`%c[WARN] ${message}`, 'color: #f59e0b; font-weight: bold');
                 }
             },
 
